@@ -14,7 +14,7 @@ image_input.addEventListener("change", function(){
 
 async function image_to_text(img) {
   const worker = await Tesseract.createWorker({
-    langPath: '../../global/',
+    langPath: '../../global',
     gzip: false,
     logger: m => console.log(m)
   });
