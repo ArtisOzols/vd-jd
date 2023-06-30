@@ -1,0 +1,33 @@
+h1 {
+    text-align: center;
+}
+
+main {
+    display: flex;
+    padding: 0 50px 0 50px;
+}
+
+.image_box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 50vw;
+}
+
+#display_image {
+    height: 375px;
+    width: 211px;
+    border: 1px solid black;
+    background-position: center;
+    background-size: cover;
+}
+
+.text_box {
+    width: 50vw;
+}
+#message {
+    display: none;
+}
+

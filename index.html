@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Vecās drukas pārveide</title>
+
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script> 
+    
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js'></script>
+    <link rel="stylesheet" href="./resources/css/main.css">
+  </head>
+  <body>
+    <h1>Vecās ortogrāfijas pārveide mūsdienu ortogrāfijā</h1>
+    <main>
+      <div class="image_box">
+        <input type="file" id="image_input" accept="image/jpg, image/jpeg, image/png">
+        <div id="display_image"></div>
+      </div>
+      <div class="image_box">
+        <div id="message">Attēls tiek atpazīts</div>
+
+      </div>
+    </main>
+    <py-config>
+      packages = [
+        "regex",
+        "./global/wheels/LatvianStemmer-1.0.2-py3-none-any.whl",
+        ]
+      [[fetch]]
+      files = [
+      "./resources/py/lang_resources/vcc_wordlist.py",
+      "./resources/py/lang_resources/w_prefixs_endings.py",
+      "./resources/py/lang_resources/fractur_to_latin_dict.py",
+      "./resources/py/lang_resources/verbs.py",
+      ]
+    </py-config>
+    <py-script src="./resources/py/old_writing_to_new.py">
+    </py-script>
+    <script src="./resources/js/tesseract.js"> //Jānomaina
+    </script>
+  </body>
+</html>
