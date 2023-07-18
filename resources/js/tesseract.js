@@ -1,13 +1,24 @@
 const image_input = document.querySelector("#image_input");
-var uploaded_image = "";
+const image_div = document.querySelector("#display_image")
+const input = document.getElementById('input');
+const output = document.getElementById('output');
 
 image_input.addEventListener("change", function(){
-  document.querySelector("#message").style.display = "block";
+  document.querySelector("#loading").style.display = "block";
   const reader = new FileReader();
   reader.addEventListener("load", () => {
-    uploaded_image = reader.result;
-    document.querySelector("#display_image").style.backgroundImage = `url(${uploaded_image})`;
-    image_to_text(uploaded_image);
+    const uploaded_img = reader.result;
+    image_div.style.backgroundImage = `url(${uploaded_img})`;
+    
+    let image = new Image();
+    image.src = reader.result;
+    image.onload = function() {
+      image_div.style.maxHeight = image.height + "px";
+    };
+    
+    process_img = pyscript.interpreter.globals.get('process_img');
+    let processed_img = process_img(uploaded_img);
+    image_to_text(processed_img);
   });
   reader.readAsDataURL(this.files[0]);
 });
@@ -22,10 +33,27 @@ async function image_to_text(img) {
   await worker.loadLanguage('Frak_LV_280721_500k');
   await worker.initialize('Frak_LV_280721_500k');
   const { data: { text } } = await worker.recognize(img);
-
-  py_convert_text = pyscript.interpreter.globals.get('convert')
-  const new_text = py_convert_text(text)
-
-  document.getElementById('message').innerHTML = new_text;
+  document.querySelector("#loading").style.display = "none";
+  output.value = convert_text(text);
   await worker.terminate();
 };
+
+function removeFiles() {
+  image_input.value = "";
+  input.value = "";
+  output.value = "";
+  image_div.style.background = "none";
+}
+
+function convert_text(text) {
+  py_convert_text = pyscript.interpreter.globals.get('convert');
+  return py_convert_text(text);
+};
+
+
+function set_output_val() {
+  output.value = convert_text(input.value);
+};
+
+input.addEventListener('input', set_output_val)
+set_output_val();

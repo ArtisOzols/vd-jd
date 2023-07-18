@@ -12,19 +12,31 @@
     <link rel="stylesheet" href="./resources/css/main.css">
   </head>
   <body>
+
+
     <h1>Vecās ortogrāfijas pārveide mūsdienu ortogrāfijā</h1>
     <main>
-      <div class="image_box">
-        <input type="file" id="image_input" accept="image/jpg, image/jpeg, image/png">
-        <div id="display_image"></div>
+      <div class="conatiner">
+        <label for="image_input" class="input_label">
+          Pievienot failu:
+          <button onclick="removeFiles()" class="delete">Nodzēst</button>
+        </label>
+        <input type="file" id="image_input" required accept="image/jpg, image/jpeg, image/png">
+        
+        <div id="display_image">
+          <textarea id="input"></textarea>
+        </div>
       </div>
-      <div class="image_box">
-        <div id="message">Attēls tiek atpazīts</div>
-
+        
+      <div class="conatiner">
+        <div id="loading"><em>Attēls tiek atpazīts</em><div id="loader_wheel"></span></div>
+        <textarea id="output"></textarea>
       </div>
     </main>
+
     <py-config>
       packages = [
+        "Pillow",
         "regex",
         "./global/wheels/LatvianStemmer-1.0.2-py3-none-any.whl",
         ]
@@ -37,6 +49,8 @@
       ]
     </py-config>
     <py-script src="./resources/py/old_writing_to_new.py">
+    </py-script>
+    <py-script src="./resources/py/text_convertion.py">
     </py-script>
     <script src="./resources/js/tesseract.js"> //Jānomaina
     </script>

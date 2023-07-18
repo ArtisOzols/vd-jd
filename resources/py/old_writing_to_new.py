@@ -109,7 +109,7 @@ def change_c_ib(w, st_w):
     if not w in w_p_e.ib_exc_nost:
         if not st_w in w_p_e.ib_exc_st:
             if len(st_w) > 2:
-                if st_w[-3] in consonants and st_w[-1] == "b":
+                if st_w[-3] in consonants and st_w[-2:] == "ib":
                     return w.replace(st_w, st_w[:-2]+"īb")
 
 
@@ -164,50 +164,87 @@ def split_and_edit_words(text):
 
     return "".join(words)
 
-def change_key_val(w, d):
+def change_key_val(text, d):
     for key, value in d.items():
-        w = w.replace(key.upper(), value.upper())
+        text = text.replace(key.upper(), value.upper())
         if len(key) > 1:
-            w = w.replace(key.title(), value.title())
-        w = w.replace(key, value)
-    return w
-def fraktur_to_latin(text, r=True, ch=True):
+            text = text.replace(key.title(), value.title())
+        text = text.replace(key, value)
+    return text
+
+def change_ee_to_ie(text):
+    for key, value in dict.ee_exc_1.items():
+        text = text.replace(key.upper(), value+"§")
+        text = text.replace(key.title(), value+"╩")
+        text = text.replace(key, value+"╔")
+    text = change_key_val(text, {"ee": "ie"})
+    for key, value in dict.ee_exc_2.items():
+        text = text.replace(key+"§", value.upper())
+        text = text.replace(key+"╩", value.title())
+        text = text.replace(key+"╔", value)
+    for key, value in dict.ee_exc_1.items():
+        text = text.replace(value+"§", key.upper())
+        text = text.replace(value+"╩", key.title())
+        text = text.replace(value+"╔", key)
+    return text
+
+def fraktur_to_latin(text, r=True, ch=True, ee_only=False, change_S_to_Z=True):
     text = " " + text + " "
     # \n, \t
     text = text.replace("\n", " 🤯 ")
     text = text.replace("\t", " 📏 ")
 
-    # if r:
-    #     text = text.replace("Ŗ", "R")
-    #     text = text.replace("ŗ", "r")
+    if r:
+        text = text.replace("Ŗ", "R")
+        text = text.replace("ŗ", "r")
 
     if ch:
         dict.lengthmarks_w_z["ch"] = "h"
+        dict.lengthmarks_w_z["Ch"] = "H"
+
+    if ee_only:
+        text = change_ee_to_ie(text)
+        # \n, \t
+        text = text.replace(" 🤯 ", "\n")
+        text = text.replace(" 📏 ", "\t")
+        return text[1:-1]
+
 
     # Ā, Ē, Ī, Ō, Ū, H, KS, V, C
     text = change_key_val(text, dict.lengthmarks_w_z)
 
+    # Z
+    if change_S_to_Z:
+        for key, value in dict.z_cap.items():
+            text = text.replace(key, value)
+
     # Z, Ž, ST
-    for key, value in dict.z_ž_st.items():
-        text = text.replace(key, value)
+    text = text.replace("ſ", "z")
+
+    for key, value in dict.st_tzch_exc.items():
+        text = text.replace(key.upper(), value+"▌")
+        text = text.replace(key.title(), value+"▐")
+        text = text.replace(key, value+"▬")
+
+    text = change_key_val(text, dict.st_tzch_sch_zch)
+
+    for key, value in dict.st_tzch_exc.items():
+        text = text.replace(value+"▌", key.upper())
+        text = text.replace(value+"▐", key.title())
+        text = text.replace(value+"▬", key)
+
+    text = change_key_val(text, dict.tzch)
 
     # S, Š, Č
     text = text.replace("ẜ", "s")
+    text = text.replace("Ꞩ", "S")
     text = change_key_val(text, dict.s_š_č)
 
     # PREFIXES
-    for key, value in dict.prefixes.items():
-        text = text.replace(key.upper(), value.upper())
-        text = text.replace(key.title(), value.title())
-        text = text.replace(key, value)
+    text = change_key_val(text, dict.prefixes)
 
     # EE
-    for key, value in dict.ee.items():
-        text = text.replace(key.upper(), value.upper())
-    for key, value in dict.ee.items():
-        text = text.replace(key.title(), value.title())
-    for key, value in dict.ee.items():
-        text = text.replace(key, value)
+    text = change_ee_to_ie(text)
 
     # \n, \t
     text = text.replace(" 🤯 ", "\n")

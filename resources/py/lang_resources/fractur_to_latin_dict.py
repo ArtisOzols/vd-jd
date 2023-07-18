@@ -1,4 +1,7 @@
 lengthmarks_w_z = {
+    # "ŗ": "r",
+    # "Ŗ": "R",
+
 # Ā
     "ah": "ā",
     "â": "ā",
@@ -34,59 +37,73 @@ lengthmarks_w_z = {
     "ú": "ū",
     "ü": "ū",
 
-# V, KS, C
+# W, Z
     "w": "v",
-    "x": "ks",
     "z": "c",
 }
 
-# Z, Ž, ST
-z_ž_st = {
-    "ſ": "z",
-    " S": " Z",
-    "/S": "/Z",
-    "«S": "«Z",
-    '"S': '"Z',
-    "„S": "„Z",
-    "'S": "'Z",
-    "(S": "(Z",
-    "-S": "-Z",
+z_cap = {
+    "S ": "┌■",
+    "S,": "┌²",
+    "S.": "┌³",
+    "S:": "┌¹",
+    "S:": "┌·",
+    "S!": "┌°",
+    "S?": "┌┘",
+    "S*": "┌×",
+    "S/": "┌¤",
+    "S»": "┌▓",
+    'S"': '┌│',
+    "S”": "┌┤",
+    "S'": "┌┴",
+    "S)": "┌├",
+    "S-": "┌┬",
 
-    "zch": "ž",
-    "Zch": "ž",
-    "ZCH": "Ž",
+    "S": "Z",
 
-    " zt": " st",
-    "/zt": "/st",
-    "«zt": "«st",
-    '"zt': '"st',
-    "„zt": "„st",
-    "'zt": "'st",
-    "(zt": "(st",
-    "-zt": "-st",
-
-    " Zt": " St",
-    "/Zt": "/St",
-    "«Zt": "«St",
-    '"Zt': '"St',
-    "„Zt": "„St",
-    "'Zt": "'St",
-    "(Zt": "(St",
-    "-Zt": "-St",
-     
-    " ZT": " ST",
-    "/ZT": "/ST",
-    "«ZT": "«ST",
-    '"ZT': '"ST',
-    "„ZT": "„ST",
-    "'ZT": "'ST",
-    "(ZT": "(ST",
-    "-ZT": "-ST",
+    "┌■": "S ",
+    "┌²": "S,",
+    "┌³": "S.",
+    "┌¹": "S:",
+    "┌·": "S:",
+    "┌°": "S!",
+    "┌┘": "S?",
+    "┌×": "S*",
+    "┌¤": "S/",
+    "┌▓": "S»",
+    '┌│': 'S"',
+    "┌┤": "S”",
+    "┌┴": "S'",
+    "┌├": "S)",
+    "┌┬": "S-",
 }
 
-# S, Š, Č
+st_tzch_exc = {
+    "greezt": "▲¶",
+    "īdzt": "▲↨",
+    "areizt": "▲↓",
+    "lauzt": "▲←",  # Klaustiņš (no Gulbja Pēc 100 g.)
+
+    # atžirgt, grāmatžurnāls/politžurnāls
+    "atzchir": "▲▀",
+    "tzchurn": "▲▄",
+}
+
+st_tzch_sch_zch = {
+    "zt": "st",
+    "tatzch": "tač",
+    "atzch": "atš",
+    "tzch": "č",
+    "zch": "ž",
+}
+
+# atžirgt, grāmatžurnāls/politžurnāls
+tzch = {
+    "tzchurn": "tžurn",
+    "atzchir": "atžir",
+}
+
 s_š_č = {
-    "ꞩ": "s",
     "ş": "s",
     "tatsch": "tač",
     "atsch": "atš",
@@ -104,6 +121,16 @@ prefixes = {
     "'us": "'uz",
     "(us": "(uz",
     "-us": "-uz",
+
+# UZ
+    " mazus": " mazuz",
+    "/mazus": "/mazuz",
+    "«mazus": "«mazuz",
+    '"mazus': '"mazuz',
+    "„mazus": "„mazuz",
+    "'mazus": "'mazuz",
+    "(mazus": "(mazuz",
+    "-mazus": "-mazuz",
 
 # NEUZ
     " neus": " neuz",
@@ -135,6 +162,16 @@ prefixes = {
     "(is": "(iz",
     "-is": "-iz",
 
+# IZ
+    " mazis": " maziz",
+    "/mazis": "/maziz",
+    "«mazis": "«maziz",
+    '"mazis': '"maziz',
+    "„mazis": "„maziz",
+    "'mazis": "'maziz",
+    "(mazis": "(maziz",
+    "-mazis": "-maziz",
+
 # NEIZ
     " neis": " neiz",
     "/neis": "/neiz",
@@ -165,6 +202,16 @@ prefixes = {
     "(ais": "(aiz",
     "-ais": "-aiz",
 
+# AIZ
+    " mazais": " mazaiz",
+    "/mazais": "/mazaiz",
+    "«mazais": "«mazaiz",
+    '"mazais': '"mazaiz',
+    "„mazais": "„mazaiz",
+    "'mazais": "'mazaiz",
+    "(mazais": "(mazaiz",
+    "-mazais": "-mazaiz",
+
 # NEAIZ
     " neais": " neaiz",
     "/neais": "/neaiz",
@@ -185,6 +232,15 @@ prefixes = {
     "(jāais": "(jāaiz",
     "-jāais": "-jāaiz",
 
+# BEZ
+    " mas": " maz",
+    "/mas": "/maz",
+    "«mas": "«maz",
+    '"mas': '"maz',
+    "„mas": "„maz",
+    "'mas": "'maz",
+    "(mas": "(maz",
+    "-mas": "-maz",
 
 # BEZ
     " bes": " bez",
@@ -197,11 +253,10 @@ prefixes = {
     "-bes": "-bez",
 
     "iztab": "istab",
-    "aizber": "aisber",
+    "aizberg": "aisberg",
 }
 
-# IE
-ee = {
+ee_exc_1 = {
     "neeee!": "☼☺",
     "neee!": "☼☻",
     " nee!": "☼♣",
@@ -213,13 +268,13 @@ ee = {
     "(nee!": "☼♂",
     "-nee!": "☼♀",
 
-    "neeeee": "neieie",
+    "neeeee": "☼♪", # neieie
 
-    "neeee": "☼♪",
-    "eeee": "ieie",
+    "neeee": "☼╬",
+    "eeee": "☼═", # ieie
 
-    "neee": "neie",
-    "iee": "☼♫",
+    "neee": "☼╠", # neie
+    "iee": "☼╦",
 
     # neesmu, neej, neefektīvs, neelpo, neecēt
     " nees": "♫♥",
@@ -267,81 +322,18 @@ ee = {
     "(neecē": "‼○",
     "-neecē": "‼◙",
 
-    # neekranizēts, neekvivalents, neekvadoras/toriāls, neekonomiski, neekoloģiski
+    # neekranizēts, neekvivalents, neekvadoras/toriāls, neekonomiski, neekoloģiski, neeksistē
     "eekrani": "¶☺",
     "eekviv": "¶☻",
     "eekva": "¶♥",
     "eekono": "¶♦",
-    "eekosis": "¶♣",
     "eekol": "¶♠",
-    
+    "eeksis": "¶♣",
+}
 
-    "ee": "ie",
-
-# Decoding    
-    "☼☺": "neeee!",
-    "☼☻": "neee!",
-    "☼♣": " nee!",
-    "☼♠": "/nee!",
-    "☼•": "«nee!",
-    "☼◘": '"nee!',
-    "☼○": "„nee!",
-    "☼◙": "'nee!",
-    "☼♂": "(nee!",
-    "☼♀": "-nee!",
-    "☼♪": "neiee",
-    "☼♫": "iee",
-
-
-    "♫♥": " nees",
-    "♫♦": "/nees",
-    "♫♣": "«nees",
-    "♫♠": '"nees',
-    "♫•": "„nees",
-    "♫◘": "'nees",
-    "♫○": "(nees",
-    "♫◙": "-nees",
-
-    "►♥": " neej",
-    "►♦": "/neej",
-    "►♣": "«neej",
-    "►♠": '"neej',
-    "►•": "„neej",
-    "►◘": "'neej",
-    "►○": "(neej",
-    "►◙": "-neej",
-
-    "◄♥": " neef",
-    "◄♦": "/neef",
-    "◄♣": "«neef",
-    "◄♠": '"neef',
-    "◄•": "„neef",
-    "◄◘": "'neef",
-    "◄○": "(neef",
-    "◄◙": "-neef",
-
-    "↕♥": " neel",
-    "↕♦": "/neel",
-    "↕♣": "«neel",
-    "↕♠": '"neel',
-    "↕•": "„neel",
-    "↕◘": "'neel",
-    "↕○": "(neel",
-    "↕◙": "-neel",
-
-    "‼♥": " neecē",
-    "‼♦": "/neecē",
-    "‼♣": "«neecē",
-    "‼♠": '"neecē',
-    "‼•": "„neecē",
-    "‼◘": "'neecē",
-    "‼○": "(neecē",
-    "‼◙": "-neecē",
-
-    "¶☺": "eekrani",
-    "¶☻": "eekviv",
-    "¶♥": "eekva",
-    "¶♦": "eekono",
-    "¶♣": "eekosis",
-    "¶♠": "eekol"
+ee_exc_2 = {
+    "☼♪": "neieie",
+    "☼╬": "neiee",
+    "☼═": "ieie",
+    "☼╠": "neie",
 }
