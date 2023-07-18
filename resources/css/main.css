@@ -54,8 +54,12 @@ input {
     width: 100%;
     text-align: center;
     font-size: 1.4rem;
+    position: absolute;
+    align-self: center;
+    bottom: 50%;
 }
 #loader_wheel {
+    display: block;
     margin: 0 auto;
     border: 3px solid #f3f3f3;
     border-radius: 50%;
@@ -76,6 +80,10 @@ textarea {
 #image_input {
     height: 25px;
     margin-bottom: 10px;
+}
+
+.conatiner {
+    position: relative;
 }
 
 .conatiner input[type=file]:invalid~#display_image>#input {
