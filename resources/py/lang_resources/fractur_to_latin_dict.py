@@ -91,6 +91,9 @@ st_tzch_exc = {
 
 st_tzch_sch_zch = {
     "zt": "st",
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # "zd": "sd",
+    # "zp": "sp",
     "tatzch": "tač",
     "atzch": "atš",
     "tzch": "č",
@@ -112,6 +115,16 @@ s_š_č = {
 }
 
 prefixes = {
+# LĪDZ
+    " līds": " līdz",
+    "/līds": "/līdz",
+    "«līds": "«līdz",
+    '"līds': '"līdz',
+    "„līds": "„līdz",
+    "'līds": "'līdz",
+    "(līds": "(līdz",
+    "-līds": "-līdz",
+
 # UZ
     " us": " uz",
     "/us": "/uz",
@@ -253,7 +266,9 @@ prefixes = {
     "-bes": "-bez",
 
     "iztab": "istab",
+    "izlām": "islām",
     "aizberg": "aisberg",
+    "beztsel": "bestsel",
 }
 
 ee_exc_1 = {

@@ -18,13 +18,26 @@
     <main>
       <div class="conatiner">
         <label for="image_input" class="input_label">
-          Pievienot failu:
+          Pievienot attēlu:
           <button onclick="removeFiles()" class="delete">Nodzēst</button>
         </label>
         <input type="file" id="image_input" required accept="image/jpg, image/jpeg, image/png">
         
         <div id="display_image">
-          <textarea id="input"></textarea>
+          <textarea id="input" autofocus></textarea>
+          <div class="character_buttons">
+            <button onclick="addCharacter('ẜ')">ẜ</button>
+            <button onclick="addCharacter('ſ')">ſ</button>
+            <button onclick="addCharacter('â')">â</button>
+            <button onclick="addCharacter('à')">à</button>
+            <button onclick="addCharacter('ê')">ê</button>
+            <div class="br-flex"></div>
+            <button onclick="addCharacter('è')">è</button>
+            <button onclick="addCharacter('î')">î</button>
+            <button onclick="addCharacter('ì')">ì</button>
+            <button onclick="addCharacter('ô')">ô</button>
+            <button onclick="addCharacter('û')">û</button>
+          </div>
         </div>
       </div>
         
@@ -46,11 +59,12 @@
       "./resources/py/lang_resources/w_prefixs_endings.py",
       "./resources/py/lang_resources/fractur_to_latin_dict.py",
       "./resources/py/lang_resources/verbs.py",
+      "./resources/py/old_script.py",
       ]
     </py-config>
     <py-script src="./resources/py/old_writing_to_new.py">
     </py-script>
-    <py-script src="./resources/py/text_convertion.py">
+    <py-script src="./resources/py/image_preprocessing.py">
     </py-script>
     <script src="./resources/js/tesseract.js"> //Jānomaina
     </script>

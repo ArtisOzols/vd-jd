@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,300;1,400&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,300;1,400&family=UnifrakturMaguntia&display=swap'); */
 
 /* Safari */
 @-webkit-keyframes spin {
@@ -13,6 +14,7 @@
 html {
     font-family: 'Noto Sans', sans-serif;
     font-weight: 300;
+    background-color: #f3f3f3;
 }
 
 
@@ -47,6 +49,7 @@ input {
     border-radius: 6px;
     width: 100%;
     height: 100%;
+    position: relative;
 }
 
 #loading {
@@ -75,10 +78,12 @@ textarea {
     height: 100%;
     border-radius: 6px;
     font-size: 1.2rem;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 #image_input {
-    height: 25px;
+    height: 40px;
     margin-bottom: 10px;
 }
 
@@ -86,6 +91,18 @@ textarea {
     position: relative;
 }
 
+#input {
+    /* font-family: 'UnifrakturMaguntia', cursive;
+    font-size: 1.5rem; */
+}
+
+#input:focus + .character_buttons {
+    border: 1.5px solid black;
+    border-top: none;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    padding: 0;
+}
 .conatiner input[type=file]:invalid~#display_image>#input {
     display: block;
 }
@@ -102,4 +119,66 @@ textarea {
     position: absolute;
     right: 0;
     bottom: -24px;
+}
+
+.character_buttons {
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    width: 100%;
+    height: 7%;
+    background-color: gray;
+    position: absolute;
+    bottom: 0px;
+    padding: 0 1.5px;
+    padding-bottom: 1.5px;
+}
+.character_buttons > button {
+    background-color: transparent;
+    font-size: 1rem;
+    font-weight: 900;
+    color: white;
+    border: none;
+}
+.br-flex {
+    display: none;
+}
+
+
+@media screen and (max-width: 800px) {
+    main {
+        flex-direction: column;
+    }
+    .conatiner {
+        width: 100%;
+        padding: 0;
+    }
+    #display_image {
+        margin-bottom: 20px;
+    }
+
+}
+@media screen and (max-width: 401px) {
+    main {
+        padding: 0 15px;
+    }
+    .delete {
+        bottom: -54px;
+        right: unset;
+        left: 0;
+        margin: 0 2px;
+    }
+    #image_input {
+        margin-bottom: 30px;
+        width: 100px;
+    }
+    .character_buttons {
+        height: 50px;
+    }
+    .br-flex {
+        display: block;
+        flex-basis: 100%; height: 0;
+        border: 1px solid lightgray;
+    }
 }

@@ -5,6 +5,7 @@ from resources.py.lang_resources.vcc_wordlist import nost_vcc
 from resources.py.lang_resources import w_prefixs_endings as w_p_e
 from resources.py.lang_resources import fractur_to_latin_dict as dict
 from resources.py.lang_resources import verbs
+from resources.py import old_script
 
 
 all_verbs = verbs.i | verbs.ii_iii
@@ -16,18 +17,20 @@ s_to_l_vowels = {"a": "ā", "e": "ē", "i": "ī", "u": "ū"}
 change_words = {"ši": "šī", "ta": "tā", "irr": "ir", "ari": "arī", "bij": "bija", "tape": "tapa", "trešu": "trešo", "taī": "tajā", "taīs": "tajās", "tapēc": "tāpēc", "mācit": "mācīt", "voi": "vai", "tadēļ": "tādēļ"}
 
 # Prefixes
-def change_prefix(w):
-    if w[:2] in ["is", "us"] or w[:3] in ["ais", "bes"]:
-        if not w in w_p_e.pref_exc:
-            if w[:3] == "ais":
-                return "aiz"+w[3:]
-            if w[:3] == "bes":
-                return "bez"+w[3:]
-            if w[:2] == "is":
-                return "iz"+w[2:]
-            if w[:2] == "us":
-                return "uz"+w[2:]
-    return w
+# def change_prefix(w):
+#     if w[:2] in ["is", "us"] or w[:3] in ["ais", "bes"]:
+#         if not w in w_p_e.pref_exc:
+#             if w[:4] == "līds":
+#                 return "līdz"+w[4:]
+#             if w[:3] == "ais":
+#                 return "aiz"+w[3:]
+#             if w[:3] == "bes":
+#                 return "bez"+w[3:]
+#             if w[:2] == "is":
+#                 return "iz"+w[2:]
+#             if w[:2] == "us":
+#                 return "uz"+w[2:]
+#     return w
 def remove_prefix(w):
     for p in w_p_e.pref:
         if w[:len(p)] == p:
@@ -42,7 +45,7 @@ def change_vcc(w):
                 if v+c+c in w:
                     if not stem(w) in st_vcc and not w in nost_vcc:
                         w = w.replace(v+c+c, v+c)
-    return pref + w        
+    return pref + w
 
 # Suffixes
 def change_c_v_san(w, st_w):
@@ -94,11 +97,12 @@ def change_verb_tense(w):
                 break
     # III conj. 1st group (-īt, -īties, -ināt, -ināties)
     for e in ["jamies", "jaties", "amies", "aties", "jam", "jat", "jas", "am", "at", "as"]:
-        if w[-len(e):] == e:
+        el = len(e)
+        if w[-el:] == e:
             if e[0] == "j":
-                e = w[-len(e)-1] + e  # Adding last char befor ending
+                e = w[-el-1:]  # Adding last char befor ending
 
-            mod_w = w[:-len(e)]
+            mod_w = w[:-el]
             nopref_mod_w = remove_prefix(mod_w)[0]
             if nopref_mod_w in verbs.iii_first_g or mod_w in verbs.iii_first_g:
                 e = e.replace("a", "ā")
@@ -116,7 +120,7 @@ def change_c_ib(w, st_w):
 def is_changed(new_t, w):
     return new_t if new_t else w   
 def edit_w(w):
-    w = is_changed(change_prefix(w), w)
+    # w = is_changed(change_prefix(w), w)
     w = is_changed(change_vcc(w), w)
     w = is_changed(change_verb_tense(w), w)
 
@@ -149,7 +153,6 @@ def split_and_edit_words(text):
         # True are only words. Words can contain "'" or numbers (like "arr'", "15ajjā")
         if w.isalnum() or "'" in w or "-" in w:
             if not w.isnumeric():
-                
                 if w.islower():
                     new_w = edit_w(w)
                     if new_w != w:
@@ -161,7 +164,8 @@ def split_and_edit_words(text):
                             words[words.index(w)] = new_w.title()
                         elif w.isupper():
                             words[words.index(w)] = new_w.upper()
-
+                        else:
+                            words[words.index(w)] = new_w
     return "".join(words)
 
 def change_key_val(text, d):
@@ -188,19 +192,19 @@ def change_ee_to_ie(text):
         text = text.replace(value+"╔", key)
     return text
 
-def fraktur_to_latin(text, r=True, ch=True, ee_only=False, change_S_to_Z=True):
+def fraktur_to_latin(text, x=False, r=True, ch=False, ee_only=False, change_S_to_Z=True):
     text = " " + text + " "
     # \n, \t
     text = text.replace("\n", " 🤯 ")
     text = text.replace("\t", " 📏 ")
 
+    if x:
+        text = text.replace("X", "Ks")
+        text = text.replace("x", "ks")
+
     if r:
         text = text.replace("Ŗ", "R")
         text = text.replace("ŗ", "r")
-
-    if ch:
-        dict.lengthmarks_w_z["ch"] = "h"
-        dict.lengthmarks_w_z["Ch"] = "H"
 
     if ee_only:
         text = change_ee_to_ie(text)
@@ -209,8 +213,7 @@ def fraktur_to_latin(text, r=True, ch=True, ee_only=False, change_S_to_Z=True):
         text = text.replace(" 📏 ", "\t")
         return text[1:-1]
 
-
-    # Ā, Ē, Ī, Ō, Ū, H, KS, V, C
+    # Ā, Ē, Ī, Ō, Ū, V, C
     text = change_key_val(text, dict.lengthmarks_w_z)
 
     # Z
@@ -218,7 +221,7 @@ def fraktur_to_latin(text, r=True, ch=True, ee_only=False, change_S_to_Z=True):
         for key, value in dict.z_cap.items():
             text = text.replace(key, value)
 
-    # Z, Ž, ST
+    # Z, Ž, Č, ST, SD, SP
     text = text.replace("ſ", "z")
 
     for key, value in dict.st_tzch_exc.items():
@@ -246,12 +249,241 @@ def fraktur_to_latin(text, r=True, ch=True, ee_only=False, change_S_to_Z=True):
     # EE
     text = change_ee_to_ie(text)
 
+    if ch:
+        dict.lengthmarks_w_z["ch"] = "h"
+        dict.lengthmarks_w_z["Ch"] = "H"
+
     # \n, \t
     text = text.replace(" 🤯 ", "\n")
     text = text.replace(" 📏 ", "\t")
     return text[1:-1]
 
-def convert(text, r=True, ch=True):
-    text = fraktur_to_latin(text, r, ch)
+patch_dict = {
+    "maldiš": "valdīš",
+    "Maldiš": "Valdīš",
+    "siņ": "ziņ",
+    "Siņ": "Ziņ",
+    "sin": "zin",
+    "Sin": "Zin",
+    "Riga": "Rīga",
+    "ietpilso": "☺𓀠☺",
+    " miet": " viet",
+    "Miet": "Viet",
+    "☺𓀠☺": "ietpilso",
+    "dārs": "dārz",
+    "Dārs": "Dārz",
+    "iepaj": "iepāj",   
+    "uldig": "uldīg",
+    "malde": "valde",
+    "Malde": "Valde",
+    " uo ": " no ",
+    " lūs ": "jūs ",
+    "mien": "vien",
+    "Mien": "Vien",
+    "ilnig": "ilnīg",
+    "ielaka": "ielāka",
+    "šeijen": "šejien",
+    "Šeijen": "Šejien",
+    "melti": "velti",
+    "Melti": "Velti",
+    "vinš": "viņš",
+    "Vinš": "Viņš",
+    "mēds": "mēdz",
+    "Mēds": "Mēdz",
+    " dimas": " divas",
+    "Dimas": "Divas",
+    "dzīm": "dzīv",
+    "Dzīm": "Dzīv",
+    "maijag": "vajag",
+    "Maijag": "Vajag",
+    
+    " marrē": " varē",
+    " marra": " vara",
+    " marru": " varu",
+    "Marrē": "Varē",
+    " nemarr": " nevar",
+    "Nemarr": "Nevar",
+
+    " marē": " varē",
+    " mara": " vara",
+    " maru": " varu",
+    "Marē": "Varē",
+    " nemar": " nevar",
+    "Nemar": "Nevar",
+
+
+
+    "marbūt": "varbūt",
+    "Marbūt": "Varbūt",
+    "marrbūt": "varbūt",
+    "Marrbūt": "Varbūt",
+    " šē ": " še ",
+    "Šē ": "Še ",
+    " ļa": " ka",
+    ",ļa": ",ka",
+    " ue": " ne",
+    " ns": " uz",
+    " uņ": " un",
+    " ro ": " to ",
+    " jam ": " jau ",
+    "Jam": "Jau",
+    " šini ": " šinī ",
+    "Šini ": "Šinī ",
+    "reds": "redz",
+    "Reds": "Redz",
+    " mai ": " vai ",
+    " mai!": " vai!",
+    ",mai": ", vai",
+    "Mai": "Vai",
+    " tē ": " te ",
+    "Tē ": "Te ",
+    " kopa": " kopā",
+    "Kopa": "Kopā",
+    "mieu": "vien",
+    "Mieu": "Vien",
+    "vieu": "vien",
+    "Vieu": "Vien",
+    " tem": " tev",
+    "Tem": "Tev",
+    "tēms": "tēvs",
+    "Tēms": "Tēvs",
+    "istēmu": "☻𓀠☻",
+    "tēmu": "tēvu",
+    "Tēmu": "Tēvu",
+    "tēmi": "tēvi",
+    "Tēmi": "Tēvi",
+    "☻𓀠☻": "istēmu",
+    " mēl": " vēl",
+    "Mēl": "Vēl",
+    " ciņa": " ziņa",
+    "Ciņa": "Ziņa",
+    "emiš": "eviš",
+    "aviš": "avīž",
+    "Aviš": "Avīž",
+    "lielak": "lielāk",
+    "Lielak": "Lielāk",
+    "ķeisar": "ķeizar",
+    "Ķeisar": "Ķeizar",
+    "keisar": "keizar",
+    "Keisar": "Keizar",
+    "miegli": "viegli",
+    "Miegli": "Viegli",
+    "drauds": "draudz",
+    "Drauds": "Draudz",
+    "maise": "maize",
+    "Maise": "Maize",
+    "aznic": "aznīc",
+    "pamisam": "pavisam",
+    "Pamisam": "Pavisam",
+    "pamissam": "pavisam",
+    "Pamissam": "Pavisam",
+    "arvienu vien": "♥𓀠♥",
+    "Arvienu vien": "♥𓀡♥",
+    "arvienu": "arvien",
+    "Arvienu": "Arvien",
+    "♥𓀠♥": "arvienu vien",
+    "♥𓀡♥": "Arvienu vien",
+    "meša": "meža",
+    "Meša": "Meža",
+    " masa ": " maza ",
+    "Masa": "Maza",
+    "nemas": "nemaz",
+    "Nemas": "Nemaz",
+    "masu": "mazu",
+    "Masu": "Mazu",
+    " sa - ": "  sa",
+    "bieši": "bieži",
+    "Bieši": "Bieži",
+    "tadš": "taču",
+    "Tadš": "Taču",
+    "lesus": "Jēzus",
+    "Lesus": "Jēzus",
+    "dzīm": "dzīv",
+    "Dzīm": "Dzīv",
+    "galmas": "galvas",
+    "Galmas": "Galvas",
+    "maijaga": "vaijaga",
+    "Maijaga": "Vaijaga",
+    "zaicinat": "zaicināt",
+    "iztaba": "istaba",
+    "Iztaba": "Istaba",
+    " ša ": " šā ",
+    "Ša": "Šā",
+    "tani": "tanī",
+    "Tani": "Tanī",
+    "pusse": "puse",
+    "Pusse": "Puse",
+    " arr": " ar",
+    "Arr": "Ar",
+    "allaš": "allaž",
+    "Allaš": "Allaž",
+    "zelssceļ": "zelzsceļ",
+    "brīšam": "brīžam",
+    "Brīšam": "Brīžam",
+    " ties ": " tiesa ",
+    "Ties ": "Tiesa ",
+    "pilsat": "pilsēt",
+    "Pilsat": "Pilsēt",
+    "kapēc": "kāpēc",
+    "Kapēc": "Kāpēc",
+    "tadēļ": "tādēļ",
+    "Tadēļ": "Tādēļ",
+    "tapēc": "tāpēc",
+    "Tapēc": "Tāpēc",
+    " ta ": " tā ",
+    ",ta ": ",tā ",
+    "Ta": "Tā ",
+    "citad": "citād",
+    "Citad": "Citād",
+    
+    "vienigi": "vienīgi",
+    "Vienigi": "Vienīgi",
+    " jav": " jau",
+    "Jav": "Jau",
+    "tappe": "tapa",
+    "Tappe": "Tapa",
+    "ļaušu": "ļaužu",
+    "Ļaušu": "Ļaužu",
+    " neka ": " nekā ",
+    "Neka ": "Nekā ",
+    "sacci": "sacī",
+    "Sacci": "Sacī",
+    "tiešam": "tiešām",
+    "Tiešam": "Tiešām",
+    " itt ": " it ", 
+    "Itt ": "It ",
+    "tūlit": "tūlīt",
+    "Tūlit": "Tūlīt",
+    "pārradu": "parādu",
+    "Pārradu": "Pārādu",
+    "vēlak": "vēlāk",
+    "Vēlak": "Vēlāk",
+    "pēdej": "pēdēj",
+    "Pēdej": "Pēdēj",
+    "tāļak": "tālāk",
+    "Tāļak": "Tālāk",
+    "tālak": "tālāk",
+    "Tālak": "Tālāk",
+    "cilvek": "cilvēk",
+    "Cilvek": "Cilvēk",
+    "mācitaj": "mācītāj",
+    "Mācitaj": "Mācītāj",
+    "vecak": "vecāk",
+    "Vecak": "Vecāk",
+    "tāļu": "tālu",
+    "Tāļu": "Tālu",
+    "april": "aprīl",
+    "April": "Aprīl",
+    "mierig": "mierīg",
+    "Mierig": "Mierīg",
+    "derr": "der",
+}
+def convert(text, r=True, ch=False, ee_only=False, change_S_to_Z=True):
+    text = old_script.clean_words(text)
+    text = fraktur_to_latin(text, r, ch, ee_only, change_S_to_Z)
     text = split_and_edit_words(text)
+    # for key, val in patch_dict.items():
+    #     if key in text:
+    #         text = text.replace(key, val)
+
     return text
