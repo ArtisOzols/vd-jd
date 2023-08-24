@@ -478,9 +478,9 @@ def fraktur_to_latin(text, x=False, r=True, ch=False, ee_only=False, change_S_to
 #     "Mierig": "Mierīg",
 #     "derr": "der",
 # }
-def convert(text, r=True, ch=False, ee_only=False, change_S_to_Z=True):
+def convert(text, x=False, r=True, ch=False, ee_only=False, change_S_to_Z=True):
     # text = old_script.clean_words(text)
-    text = fraktur_to_latin(text, r, ch, ee_only, change_S_to_Z)
+    text = fraktur_to_latin(text, x, r, ch, ee_only, change_S_to_Z)
     text = split_and_edit_words(text)
     # for key, val in patch_dict.items():
     #     if key in text:
