@@ -51,6 +51,7 @@ function removeFiles() {
   input.focus();
   output.value = "";
   image_div.style.backgroundImage = "none";
+  image_div.style.maxHeight = "unset";
   char_buttons.style.display = "flex";
 }
 
