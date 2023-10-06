@@ -18,31 +18,38 @@ image_input.addEventListener("change", function(){
     image.src = reader.result;
     image.onload = function() {
       image_div.style.maxHeight = image.height + "px";
+      
+      // Creating canvas for Tesseract
+      const canvasForTesseract = document.createElement('canvas');
+      const ctxForTesseract = canvasForTesseract.getContext('2d');
+      canvasForTesseract.width = image.width;
+      canvasForTesseract.height = image.height;
+      ctxForTesseract.drawImage(image, 0, 0);
+
+      // Converting image to grayscale
+      var imgData = ctxForTesseract.getImageData(0,0, image.width, image.height);
+      for (var i = 0; i<imgData.data.length; i += 4) {
+        var avg = (imgData.data[i]+imgData.data[i+1]+imgData.data[i+2])/3;
+        imgData.data[i] = avg;
+        imgData.data[i+1] = avg;
+        imgData.data[i+2] = avg;
+      }
+      ctxForTesseract.putImageData(imgData, 0, 0, 0, 0, imgData.width, imgData.height);
+      
+      var dataURL = canvasForTesseract.toDataURL();
+      image_to_text(dataURL);
     };
-    
-    process_img = pyscript.interpreter.globals.get('process_img');
-    let processed_img = process_img(uploaded_img);
-    image_to_text(processed_img);
   });
   reader.readAsDataURL(this.files[0]);
 });
-
 async function image_to_text(img) {
-  const worker = await Tesseract.createWorker({
-    langPath: 'global',
-    gzip: false,
-    logger: m => console.log(m)
-  });
-  await worker.load();
-  await worker.loadLanguage('Frak_LV_280721_500k');
-  await worker.initialize('Frak_LV_280721_500k');
+  const worker = await Tesseract.createWorker("Frak_LV_280721_500k");
   const { data: { text } } = await worker.recognize(img);
 
   document.querySelector("#loading").style.display = "none";
   output.style.backgroundColor = "white";
   output.style.opacity = "100%";
   output.value = convert_text(text);  
-  await worker.terminate();
 };
 
 function removeFiles() {

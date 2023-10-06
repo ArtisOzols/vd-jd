@@ -4,109 +4,187 @@ from resources.py.lang_resources.vcc_wordlist import st_vcc
 from resources.py.lang_resources.vcc_wordlist import nost_vcc
 from resources.py.lang_resources import w_prefixs_endings as w_p_e
 from resources.py.lang_resources import fractur_to_latin_dict as dict
+from resources.py.lang_resources import old_w_dictionary
 from resources.py.lang_resources import verbs
-from resources.py import old_script
-
 
 all_verbs = verbs.i | verbs.ii_iii
-consonants = ["b", "c", "č", "d", "f", "g", "ģ", "h", "j", "k", "ķ", "l", "ļ", "m", "n", "ņ", "p", "r", "s", "š", "t", "v", "z", "ž"]
-svowels = ["a", "e", "i", "u", "o"]
-vowels = ["a", "e", "i", "u", "ā", "ē", "ī", "ū", "o"]
+consonants = {"b", "c", "č", "d", "f", "g", "ģ", "h", "j", "k", "ķ", "l", "ļ", "m", "n", "ņ", "p", "r", "s", "š", "t", "v", "z", "ž"}
+a_e_i_u = {"a", "e", "i", "u"}
+vowels = {"a", "e", "i", "o", "u", "ā", "ē", "ī", "ū"}
 s_to_l_vowels = {"a": "ā", "e": "ē", "i": "ī", "u": "ū"}
+diacritic_char = {"ā", "č", "ē", "ģ", "ī", "ķ", "ļ", "ņ", "š", "ū", "ž"}
 
-change_words = {"ši": "šī", "ta": "tā", "irr": "ir", "ari": "arī", "bij": "bija", "tape": "tapa", "trešu": "trešo", "taī": "tajā", "taīs": "tajās", "tapēc": "tāpēc", "mācit": "mācīt", "voi": "vai", "tadēļ": "tādēļ"}
+# Changes prefixes – short to long vowel ("lidz" to "līdz"; "pec" to "pēc"; "ja"+vowel (exc. "u") to "jā"+vowel) and "s" to "z" in "is", "us", "ais", "bes"
+def change_prefix(w):
+    # Counts word characters, then edits those words longer that 4 characters, then those longer than 3
+    w_len = len(w)
+    # Changes short to long vowel in pefixes  
+    if w_len > 3:
+        # If first 4 letters in word are "lidz" and this word stemmed is not in exeption list, "lidz" is replaced with "līdz" 
+        if w[:4] == "lidz":
+            if not stem(w) in w_p_e.lidz_st:
+                w = "līdz"+w[4:]
+    if w_len > 2:
+        # If first 3 letters in word are "pec" and this word neither stemmed nor non stemmed is not present in exeption list, "pec" is replaced with "pēc" 
+        if w[:3] == "pec":
+            if not w in w_p_e.pec or not stem(w) in w_p_e.pec_st:
+                w = "pēc"+w[3:]
+        # If first 2 letters in word are "ja" followed by a vowel (except "u" since there are too many words that start with "jau") and this word neither stemmed nor non stemmed is not present in exeption list, "ja" is replaced with "jā" 
+        elif w[:3] in {"jaa", "jae", "jai", "jao", "jaā", "jaē", "jaī", "jaū"}:
+            if not w in w_p_e.ja_v or not stem(w) in w_p_e.ja_v_st:
+                w = "jā"+w[2:]
+    
+        # Changes "s" to "z" in pefixes
+        # If word starts with "is", "us", "ais" or "bes" and word is not in exception list, "s" in prefix is replaced with "z"
+        if w[:2] in ["is", "us"] or w[:3] in ["ais", "bes"]:
+            if not w in w_p_e.pref_exc:
+                if w[:3] == "ais":
+                    return "aiz"+w[3:]
+                if w[:3] == "bes":
+                    return "bez"+w[3:]
+                if w[:2] == "is":
+                    return "iz"+w[2:]
+                if w[:2] == "us":
+                    return "uz"+w[2:]
+    return w
 
-# Prefixes
-# def change_prefix(w):
-#     if w[:2] in ["is", "us"] or w[:3] in ["ais", "bes"]:
-#         if not w in w_p_e.pref_exc:
-#             if w[:4] == "līds":
-#                 return "līdz"+w[4:]
-#             if w[:3] == "ais":
-#                 return "aiz"+w[3:]
-#             if w[:3] == "bes":
-#                 return "bez"+w[3:]
-#             if w[:2] == "is":
-#                 return "iz"+w[2:]
-#             if w[:2] == "us":
-#                 return "uz"+w[2:]
-#     return w
-def remove_prefix(w):
+# Changes "ch" to "h"
+def change_ch(w):
+    # If "ch" is in the word and word is not in exception list, "ch" is replaced with "h"
+    if "ch" in w:
+        if not w in w_p_e.ch_exc:
+            return w.replace("ch", "h")
+    return w
+
+# Removes prefix
+def remove_prefix(w, rm_all=True):
     for p in w_p_e.pref:
+        # Takes each prefix from "w_p_e.pref" list and checks if word starts with it. Measures prefix length (taken from the list) and checks that many first letters in the word; if they match, prefix is removed
         if w[:len(p)] == p:
-            return (w[len(p):], p)
+            nopref_w = w[len(p):]
+            # if property rm_all is set to False, word without a prefix and removed prefix is returned. If not, the rest of the prefixes will be removed from word and returned
+            if not rm_all:
+                return (nopref_w, p)
+            
+            # To remove the remaining prefixes, remove_prefix() function is called. Both its values are returned, but before the second value returned prefix is added
+            new_w, new_p = remove_prefix(nopref_w)
+            return (new_w, p + new_p)
+    # If word dont have any prefix, word with nothing is returned
     return (w, "")
 
+# Replaces vowel + doubled consonants with vowel and one consonant (e.g., "patti"->"pati", "sattikt"->"satikt")
 def change_vcc(w):
-    w, pref = remove_prefix(w)
+    orig_w, pref = w, ""
+    # Checks if word neather stemmed nor non stemmed is in exception lists. If it is, unmodified word is returned, else – one prefix is removed from the word and added to "pref" variable.
+    # This process continues until the word has no more prefixes
+    while True:
+        if stem(w) in st_vcc or w in nost_vcc:
+            return orig_w
+        w, new_pref = remove_prefix(w, False)
+        pref += new_pref
+        if not new_pref:
+            break
+    # Next word without prefix will be processed to avoid vowel + doubled consonants in prefix (e.g. "ieeja")
+    # If word still have 3 or more characters, multiple combinations of vowel + doubled consonants are generated and checked if they are present in the word. If they are and if word neather stemmed nor non stemmed are present in exception list, doubled consonant is removed.
+    # This process continues either until the word is in exception list or until there are no vowel with doubled consonant in the word. In both cases word is returned with its prefix
     if len(w) > 2:
-        for v in svowels:
+        for v in a_e_i_u | {"o"}:
             for c in consonants:
                 if v+c+c in w:
-                    if not stem(w) in st_vcc and not w in nost_vcc:
-                        w = w.replace(v+c+c, v+c)
+                    if stem(w) in st_vcc or w in nost_vcc:
+                        return pref + w
+                    w = w.replace(v+c+c, v+c)
     return pref + w
 
-# Suffixes
+# Replaces short to long vowel if before vowel is consonant but after – "šan"
 def change_c_v_san(w, st_w):
-    if st_w[-3:] == "šan" and st_w[-4] in ["a", "e", "i", "u"]:
-        for e in w_p_e.c_v_san:
-            if e in st_w:
-                return
+    # Checks if last 3 letters of stemmed word is "šan" and before it – a short vowel
+    if st_w[-3:] == "šan" and st_w[-4] in a_e_i_u:
+        # If stemmed word is in exception list, non stemmed word is returned
+        if st_w in w_p_e.c_v_san_exc:
+            return w
+        # Checks if the 5th character from the end is consonant. If it is – following vowel in nonstemmed word is changed to long vowel
         if not st_w[-5] in vowels:
-            c = st_w[-4]
-            return w.replace(c+"šan", s_to_l_vowels[c]+"šan")
+            v = st_w[-4]
+            return w.replace(v+"šan", s_to_l_vowels[v]+"šan")
+    return w
 
+# Replaces short to long vowel if "tāj" or "taj" (which later is replaced with "tāj") follows
 def change_v_taj(w, st_w):
+    # Checks if stemmed word ends with "taj" and before is a vowel  
     if st_w[-4] in vowels and st_w[-3:] == "taj":
-        if not st_w in w_p_e.v_taj:
-            c = st_w[-4]
-            if c in ["a", "e", "i", "u"]:
-                return w.replace(c+"taj", s_to_l_vowels[c]+"tāj")
+        # Checks if stemmed word is not in exception list. "v_taj_short_a" consists of stemmed words that ends with a vowel + "taj"
+        if not st_w in w_p_e.v_taj_short_a:
+            v = st_w[-4]
+            # Checks if the vowel (4th character from the end) is a short vowel. If it is – non stemmed word is returned with long vowel followed by "tāj" (instead of "taj"); if it is not – only "taj" is replaced with "tāj"
+            if v in a_e_i_u:
+                return w.replace(v+"taj", s_to_l_vowels[v]+"tāj")
             else:
-                return w.replace(c+"taj", c+"tāj")
-    elif st_w[-4] in ["a", "e", "i", "u"] and st_w[-3:] == "tāj":
-        if not "jautāj" in st_w and not "maitāj" in st_w:
-            if not st_w in w_p_e.sv_taj:
-                return w.replace(st_w[-4]+"tāj", s_to_l_vowels[st_w[-4]]+"tāj")
+                return w.replace(v+"taj", v+"tāj")
 
-def mod_verb(w, verb_d, end):
+    # Checks if stemmed word ends with "tāj" and before is a short vowel  
+    elif st_w[-4] in a_e_i_u and st_w[-3:] == "tāj":
+        if not "jautāj" in st_w and not "maitāj" in st_w:
+            # Checks if stemmed word is not in exception list. "sv_taj_long_a" consists of stemmed words that ends with short vowel + "tāj"
+            if not st_w in w_p_e.sv_taj_long_a:
+                # Returns non stemmed word with long vowel before "tāj"
+                return w.replace(st_w[-4]+"tāj", s_to_l_vowels[st_w[-4]]+"tāj")
+    return w
+
+# Function for change_verb_ending(). Changes short to long vowel before ending
+# input: w - verb to modify; verb_d - list of verbs in Latvian; end - w (verb) ending
+def mod_verb(w, verb_list, end):
+    # Removes w ending
     w = w[:-len(end)]
     if len(w) > 1:
+        # To words with more than 2 characters, checks if 2nd to last character is consonant; and last – short vowel
         if w[-2] in consonants:
             v = w[-1]
-            if v in ["i", "a", "e", "u"]:
+            if v in a_e_i_u:
+                # Changes last character from short to long vowel;
                 w = w[:-1] + s_to_l_vowels[v]
-                nopref_w = remove_prefix(w)[0]
 
-                if nopref_w in verb_d or w in verb_d:
-                    return w + end     
-def change_verb_tense(w):
+                # Checks if w (without end and long vowel as last character) with and without prefix can be found in verb_list
+                nopref_w = remove_prefix(w)[0]
+                if nopref_w in verb_list or w in verb_list:
+                    # If verb exists, it is returned modified with end
+                    return w + end
+
 # Change short to long vowel in verb suffix and ending
-    # Infinitive, Past, future and II conj. present
-    for e in ["sieties", "jāmies", "jamies", "jāties", "jaties", "simies", "amies", "aties", "ties", "jies", "siet", "sies", "jām", "jam", "jāt", "jat", "jos", "jās", "jas", "sim", "šos", "am", "at", "ju", "ji", "ja", "šu", "si", "s", "t"]:
-        if w[-len(e):] == e:
+def change_verb_ending(w):
+    # Infinitive, past, future and II conj. present. This will not work for I conj. verbs, except for some words in infinitive form
+    # Checks if word is in one of these categories. If it is, word is modified, else – passed unmodified to the next for loop to check if it is a verb of III conj. 1st group 
+    for end in ["sieties", "jāmies", "jamies", "jāties", "jaties", "simies", "amies", "aties", "ties", "jies", "siet", "sies", "jām", "jam", "jāt", "jat", "jos", "jās", "jas", "sim", "šos", "am", "ju", "ji", "ja", "šu", "si", "s", "t"]:
+        if w[-len(end):] == end:
             # Infinitive form
-            if e in ["ties", "t"]:
-                return mod_verb(w, all_verbs, e)
-            
-            # The rest
+            # Change short to long vowel in verb suffix and ending if verb is in all_verbs – list of all verbs without endings "ties"and "t"
+            if end in ["ties", "t"]:
+                mod_w = mod_verb(w, all_verbs, end)
+                if mod_w:
+                    return mod_w
+            # Past, future and II conj. present
+            # Change short to long vowel in verb suffix and ending if verb is in verbs.ii_iii – list of II and III conj. verbs without endings "ties"and "t"
             else:
-                mod_w = mod_verb(w, verbs.ii_iii, e)
+                mod_w = mod_verb(w, verbs.ii_iii, end)
                 w = mod_w if mod_w else w
                 break
     # III conj. 1st group (-īt, -īties, -ināt, -ināties)
-    for e in ["jamies", "jaties", "amies", "aties", "jam", "jat", "jas", "am", "at", "as"]:
-        el = len(e)
-        if w[-el:] == e:
-            if e[0] == "j":
-                e = w[-el-1:]  # Adding last char befor ending
+    # Checks if word is in this category. If it is, word is modified, else returned unmodified
+    for end in ["jamies", "jaties", "amies", "aties", "jam", "jat", "jas", "am", "at", "as"]:
+        end_l = len(end)
+        # Checks if any of these endings are at the end of the word 
+        if w[-end_l:] == end:
+            # For those words with endings that contains "j", aditional letter from word is added to ending
+            if end[0] == "j":
+                end = w[-end_l-1:]  # Adding last char befor ending
 
-            mod_w = w[:-el]
+            # Ending is removed; and then – prefix
+            mod_w = w[:-end_l]
             nopref_mod_w = remove_prefix(mod_w)[0]
+            # Checks if any – with and without prefix word can be found in iii_first_g list – list of stemmed III conj. 1st group verbs
             if nopref_mod_w in verbs.iii_first_g or mod_w in verbs.iii_first_g:
-                e = e.replace("a", "ā")
-                return mod_w+e
+                end = end.replace("a", "ā")
+                return mod_w+end
     return w
 
 def change_c_ib(w, st_w):
@@ -115,57 +193,65 @@ def change_c_ib(w, st_w):
             if len(st_w) > 2:
                 if st_w[-3] in consonants and st_w[-2:] == "ib":
                     return w.replace(st_w, st_w[:-2]+"īb")
+    return w
 
-
-def is_changed(new_t, w):
-    return new_t if new_t else w   
 def edit_w(w):
-    # w = is_changed(change_prefix(w), w)
-    w = is_changed(change_vcc(w), w)
-    w = is_changed(change_verb_tense(w), w)
+    w = change_prefix(w)
+
+    w = change_ch(w)
+    w = change_vcc(w)
+    w = change_verb_ending(w)
 
     st_w = stem(w)
     if len(st_w) > 4:
-        w = is_changed(change_c_v_san(w, st_w), w)
-        w = is_changed(change_v_taj(w, st_w), w)
+        w = change_c_v_san(w, st_w)
+        w = change_v_taj(w, st_w)
+    w = change_c_ib(w, st_w)
 
-    w = is_changed(change_c_ib(w, st_w), w)
-    
-    if w in change_words:
-        w = change_words[w]
+    if w in old_w_dictionary.o_w_dict:
+        w = old_w_dictionary.o_w_dict[w]
         
     # Endings
-    if w[-3:] == "ges":
-        w = w[:-3] + "gas"
+    if w[-3:] == "ak":
+        if not w in w_p_e.ak_exc:
+            w = w[:-3] + "ak"
+    # if w[-3:] == "ges":
+    #     w = w[:-3] + "gas"
 
-    if w[-4:] == "dait":
-        w = w[:-4] + "diet"
-
-    if w[-4:] == "dait":
-        w = w[:-4] + "diet"
+    # if w[-4:] == "dait":
+    #     w = w[:-4] + "diet"
 
     return w
 
 
-def split_and_edit_words(text):
-    words = re.findall(r"\w+(?:['-]\w+)?|\s+|[^\w\s]", text)  # split the text into words, preserving escape characters
+def split_and_edit_words(text, r=False):
+    # Converts "ŗ", "Ŗ" to "r", "R"
+    if r:
+        text = text.replace("Ŗ", "R")
+        text = text.replace("ŗ", "r")
+
+    # Split text into words (Words can contain "'" and numbers, like "arr'", "15ajjā"), escape characters, punctuations, numbers, spaces, symbols
+    words = re.findall(r"\w+(?:['-]\w+)?|\s+|[^\w\s]", text)
     for w in words:
-        # True are only words. Words can contain "'" or numbers (like "arr'", "15ajjā")
+        # True for numbers and words (they can contain "'" and numbers (like "arr'", "15ajjā")
         if w.isalnum() or "'" in w or "-" in w:
+            # True if is not number
             if not w.isnumeric():
-                if w.islower():
-                    new_w = edit_w(w)
-                    if new_w != w:
-                        words[words.index(w)] = new_w
-                else:
-                    new_w = edit_w(w.lower())
-                    if new_w != w:
-                        if w.istitle():
-                            words[words.index(w)] = new_w.title()
-                        elif w.isupper():
-                            words[words.index(w)] = new_w.upper()
-                        else:
-                            words[words.index(w)] = new_w
+                # Edits word; if word differs from original, it is replaced in the "words" list retaining original case.
+                # Lowcases and edits word; Returns the word in original case
+                mod_w = edit_w(w.lower())
+                # True if word has changed
+                if mod_w != w.lower():
+                    if w.istitle():
+                        # Replaces word with modified word in "words" list. Word is returned in original title case
+                        words[words.index(w)] = mod_w.title()
+                    elif w.isupper():
+                        # Replaces word with modified word in "words" list. Word is returned in original ipper case
+                        words[words.index(w)] = mod_w.upper()
+                    else:
+                        # Replaces word with modified word in "words" list. Word is returned in lowcase. This may not be original case
+                        words[words.index(w)] = mod_w
+    # Concatinates split text
     return "".join(words)
 
 def change_key_val(text, d):
@@ -192,7 +278,7 @@ def change_ee_to_ie(text):
         text = text.replace(value+"╔", key)
     return text
 
-def fraktur_to_latin(text, x=False, r=True, ch=False, ee_only=False, change_S_to_Z=True):
+def fraktur_to_latin(text, x=False, r=True, ee_only=False, change_S_to_Z=True):
     text = " " + text + " "
     # \n, \t
     text = text.replace("\n", " 🤯 ")
@@ -249,241 +335,14 @@ def fraktur_to_latin(text, x=False, r=True, ch=False, ee_only=False, change_S_to
     # EE
     text = change_ee_to_ie(text)
 
-    if ch:
-        dict.lengthmarks_w_z["ch"] = "h"
-        dict.lengthmarks_w_z["Ch"] = "H"
-
     # \n, \t
     text = text.replace(" 🤯 ", "\n")
     text = text.replace(" 📏 ", "\t")
     return text[1:-1]
 
-# patch_dict = {
-#     "maldiš": "valdīš",
-#     "Maldiš": "Valdīš",
-#     "siņ": "ziņ",
-#     "Siņ": "Ziņ",
-#     "sin": "zin",
-#     "Sin": "Zin",
-#     "Riga": "Rīga",
-#     "ietpilso": "☺𓀠☺",
-#     " miet": " viet",
-#     "Miet": "Viet",
-#     "☺𓀠☺": "ietpilso",
-#     "dārs": "dārz",
-#     "Dārs": "Dārz",
-#     "iepaj": "iepāj",   
-#     "uldig": "uldīg",
-#     "malde": "valde",
-#     "Malde": "Valde",
-#     " uo ": " no ",
-#     " lūs ": "jūs ",
-#     "mien": "vien",
-#     "Mien": "Vien",
-#     "ilnig": "ilnīg",
-#     "ielaka": "ielāka",
-#     "šeijen": "šejien",
-#     "Šeijen": "Šejien",
-#     "melti": "velti",
-#     "Melti": "Velti",
-#     "vinš": "viņš",
-#     "Vinš": "Viņš",
-#     "mēds": "mēdz",
-#     "Mēds": "Mēdz",
-#     " dimas": " divas",
-#     "Dimas": "Divas",
-#     "dzīm": "dzīv",
-#     "Dzīm": "Dzīv",
-#     "maijag": "vajag",
-#     "Maijag": "Vajag",
-    
-#     " marrē": " varē",
-#     " marra": " vara",
-#     " marru": " varu",
-#     "Marrē": "Varē",
-#     " nemarr": " nevar",
-#     "Nemarr": "Nevar",
-
-#     " marē": " varē",
-#     " mara": " vara",
-#     " maru": " varu",
-#     "Marē": "Varē",
-#     " nemar": " nevar",
-#     "Nemar": "Nevar",
-
-
-
-#     "marbūt": "varbūt",
-#     "Marbūt": "Varbūt",
-#     "marrbūt": "varbūt",
-#     "Marrbūt": "Varbūt",
-#     " šē ": " še ",
-#     "Šē ": "Še ",
-#     " ļa": " ka",
-#     ",ļa": ",ka",
-#     " ue": " ne",
-#     " ns": " uz",
-#     " uņ": " un",
-#     " ro ": " to ",
-#     " jam ": " jau ",
-#     "Jam": "Jau",
-#     " šini ": " šinī ",
-#     "Šini ": "Šinī ",
-#     "reds": "redz",
-#     "Reds": "Redz",
-#     " mai ": " vai ",
-#     " mai!": " vai!",
-#     ",mai": ", vai",
-#     "Mai": "Vai",
-#     " tē ": " te ",
-#     "Tē ": "Te ",
-#     " kopa": " kopā",
-#     "Kopa": "Kopā",
-#     "mieu": "vien",
-#     "Mieu": "Vien",
-#     "vieu": "vien",
-#     "Vieu": "Vien",
-#     " tem": " tev",
-#     "Tem": "Tev",
-#     "tēms": "tēvs",
-#     "Tēms": "Tēvs",
-#     "istēmu": "☻𓀠☻",
-#     "tēmu": "tēvu",
-#     "Tēmu": "Tēvu",
-#     "tēmi": "tēvi",
-#     "Tēmi": "Tēvi",
-#     "☻𓀠☻": "istēmu",
-#     " mēl": " vēl",
-#     "Mēl": "Vēl",
-#     " ciņa": " ziņa",
-#     "Ciņa": "Ziņa",
-#     "emiš": "eviš",
-#     "aviš": "avīž",
-#     "Aviš": "Avīž",
-#     "lielak": "lielāk",
-#     "Lielak": "Lielāk",
-#     "ķeisar": "ķeizar",
-#     "Ķeisar": "Ķeizar",
-#     "keisar": "keizar",
-#     "Keisar": "Keizar",
-#     "miegli": "viegli",
-#     "Miegli": "Viegli",
-#     "drauds": "draudz",
-#     "Drauds": "Draudz",
-#     "maise": "maize",
-#     "Maise": "Maize",
-#     "aznic": "aznīc",
-#     "pamisam": "pavisam",
-#     "Pamisam": "Pavisam",
-#     "pamissam": "pavisam",
-#     "Pamissam": "Pavisam",
-#     "arvienu vien": "♥𓀠♥",
-#     "Arvienu vien": "♥𓀡♥",
-#     "arvienu": "arvien",
-#     "Arvienu": "Arvien",
-#     "♥𓀠♥": "arvienu vien",
-#     "♥𓀡♥": "Arvienu vien",
-#     "meša": "meža",
-#     "Meša": "Meža",
-#     " masa ": " maza ",
-#     "Masa": "Maza",
-#     "nemas": "nemaz",
-#     "Nemas": "Nemaz",
-#     "masu": "mazu",
-#     "Masu": "Mazu",
-#     " sa - ": "  sa",
-#     "bieši": "bieži",
-#     "Bieši": "Bieži",
-#     "tadš": "taču",
-#     "Tadš": "Taču",
-#     "lesus": "Jēzus",
-#     "Lesus": "Jēzus",
-#     "dzīm": "dzīv",
-#     "Dzīm": "Dzīv",
-#     "galmas": "galvas",
-#     "Galmas": "Galvas",
-#     "maijaga": "vaijaga",
-#     "Maijaga": "Vaijaga",
-#     "zaicinat": "zaicināt",
-#     "iztaba": "istaba",
-#     "Iztaba": "Istaba",
-#     " ša ": " šā ",
-#     "Ša": "Šā",
-#     "tani": "tanī",
-#     "Tani": "Tanī",
-#     "pusse": "puse",
-#     "Pusse": "Puse",
-#     " arr": " ar",
-#     "Arr": "Ar",
-#     "allaš": "allaž",
-#     "Allaš": "Allaž",
-#     "zelssceļ": "zelzsceļ",
-#     "brīšam": "brīžam",
-#     "Brīšam": "Brīžam",
-#     " ties ": " tiesa ",
-#     "Ties ": "Tiesa ",
-#     "pilsat": "pilsēt",
-#     "Pilsat": "Pilsēt",
-#     "kapēc": "kāpēc",
-#     "Kapēc": "Kāpēc",
-#     "tadēļ": "tādēļ",
-#     "Tadēļ": "Tādēļ",
-#     "tapēc": "tāpēc",
-#     "Tapēc": "Tāpēc",
-#     " ta ": " tā ",
-#     ",ta ": ",tā ",
-#     "Ta": "Tā ",
-#     "citad": "citād",
-#     "Citad": "Citād",
-    
-#     "vienigi": "vienīgi",
-#     "Vienigi": "Vienīgi",
-#     " jav": " jau",
-#     "Jav": "Jau",
-#     "tappe": "tapa",
-#     "Tappe": "Tapa",
-#     "ļaušu": "ļaužu",
-#     "Ļaušu": "Ļaužu",
-#     " neka ": " nekā ",
-#     "Neka ": "Nekā ",
-#     "sacci": "sacī",
-#     "Sacci": "Sacī",
-#     "tiešam": "tiešām",
-#     "Tiešam": "Tiešām",
-#     " itt ": " it ", 
-#     "Itt ": "It ",
-#     "tūlit": "tūlīt",
-#     "Tūlit": "Tūlīt",
-#     "pārradu": "parādu",
-#     "Pārradu": "Pārādu",
-#     "vēlak": "vēlāk",
-#     "Vēlak": "Vēlāk",
-#     "pēdej": "pēdēj",
-#     "Pēdej": "Pēdēj",
-#     "tāļak": "tālāk",
-#     "Tāļak": "Tālāk",
-#     "tālak": "tālāk",
-#     "Tālak": "Tālāk",
-#     "cilvek": "cilvēk",
-#     "Cilvek": "Cilvēk",
-#     "mācitaj": "mācītāj",
-#     "Mācitaj": "Mācītāj",
-#     "vecak": "vecāk",
-#     "Vecak": "Vecāk",
-#     "tāļu": "tālu",
-#     "Tāļu": "Tālu",
-#     "april": "aprīl",
-#     "April": "Aprīl",
-#     "mierig": "mierīg",
-#     "Mierig": "Mierīg",
-#     "derr": "der",
-# }
-def convert(text, x=False, r=True, ch=False, ee_only=False, change_S_to_Z=True):
-    # text = old_script.clean_words(text)
-    text = fraktur_to_latin(text, x, r, ch, ee_only, change_S_to_Z)
-    text = split_and_edit_words(text)
-    # for key, val in patch_dict.items():
-    #     if key in text:
-    #         text = text.replace(key, val)
-
+def convert(text, x=False, r=True, ee_only=False, change_S_to_Z=True):
+    # Transliteration – converts Fraktur to Latin letters
+    text = fraktur_to_latin(text, x, r, ee_only, change_S_to_Z)
+    # Text modernization – splits text into words, converts them and returns modernized text 
+    text = split_and_edit_words(text, r=False)
     return text

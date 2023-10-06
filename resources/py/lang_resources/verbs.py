@@ -1,6 +1,6 @@
 # source https://www.lviap.lv/grammar/verbs/konjugacija/
 
-# Verbs in infinitive form which ends with long vowel before ending (-ties or -t) which is also removed
+# I conj. verbs in infinitive form which ends with long vowel before ending (-ties or -t). Ending is removed
 i = {
  'aizdzī',
  'aizklā',
@@ -115,6 +115,7 @@ i = {
  'šū',
  'žū'}
 
+# II, III conj. verbs in infinitive form which ends with long vowel before ending (-ties or -t). Ending is removed
 ii_iii = {
  'abonē',
  'adaptē',
