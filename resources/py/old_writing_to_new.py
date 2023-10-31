@@ -18,6 +18,7 @@ diacritic_char = {"ā", "č", "ē", "ģ", "ī", "ķ", "ļ", "ņ", "š", "ū", "�
 def change_prefix(w):
     # Counts word characters, then edits those words longer that 4 characters, then those longer than 3
     w_len = len(w)
+
     # Changes short to long vowel in pefixes  
     if w_len > 3:
         # If first 4 letters in word are "lidz" and this word stemmed is not in exeption list, "lidz" is replaced with "līdz" 
@@ -340,6 +341,8 @@ def fraktur_to_latin(text, x=False, r=True, ee_only=False, change_S_to_Z=True):
     text = text.replace(" 📏 ", "\t")
     return text[1:-1]
 
+# Converts old fraktur latvian text to modern latvian text
+# Input: text - text to convert; x -  
 def convert(text, x=False, r=True, ee_only=False, change_S_to_Z=True):
     # Transliteration – converts Fraktur to Latin letters
     text = fraktur_to_latin(text, x, r, ee_only, change_S_to_Z)
