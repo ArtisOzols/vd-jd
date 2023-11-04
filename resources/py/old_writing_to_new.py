@@ -342,7 +342,8 @@ def fraktur_to_latin(text, x=False, r=True, ee_only=False, change_S_to_Z=True):
     return text[1:-1]
 
 # Converts old fraktur latvian text to modern latvian text
-# Input: text - text to convert; x -  
+# Inpustring: text - text to convert;
+# Boolean: x - if True converts "x" to "ks"; r - if True converts "ŗ" to "r"; ee_only - if True converts only "ee" to "ie" in text; change_S_to_Z - if True converts "S" to "Z"
 def convert(text, x=False, r=True, ee_only=False, change_S_to_Z=True):
     # Transliteration – converts Fraktur to Latin letters
     text = fraktur_to_latin(text, x, r, ee_only, change_S_to_Z)
