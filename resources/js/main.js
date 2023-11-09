@@ -8,6 +8,7 @@ image_input.addEventListener("change", function(){
   document.querySelector("#loading").style.display = "block";
   output.style.backgroundColor = "lightgray";
   output.style.opacity = "20%";
+  
   const reader = new FileReader();
   reader.addEventListener("load", () => {
     const uploaded_img = reader.result;
@@ -57,6 +58,11 @@ function removeFiles() {
   input.value = "";
   input.focus();
   output.value = "";
+
+  document.querySelector("#loading").style.display = "none";
+  output.style.backgroundColor = "white";
+  output.style.opacity = "100%";
+
   image_div.style.backgroundImage = "none";
   image_div.style.maxHeight = "unset";
   char_buttons.style.display = "flex";
