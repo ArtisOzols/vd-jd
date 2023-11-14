@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="lv">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -14,30 +14,28 @@
   <body>
 
 
-    <h1>Vecās ortogrāfijas pārveide mūsdienu ortogrāfijā</h1>
+    <h1>vecās ortogrāfijas pārveide mūsdienu ortogrāfijā</h1>
     <main>
       <div class="conatiner">
-        <label for="image_input" class="input_label">
-          Pievienot attēlu:
-          <button onclick="removeFiles()" class="delete">Nodzēst</button>
-        </label>
-        <input type="file" id="image_input" required accept=".bmp, .jpg, .png, .pbm, .webp">
-        
-        <div id="display_image">
-          <textarea id="input" autofocus></textarea>
-          <div class="character_buttons">
-            <button onclick="addCharacter('ẜ')">ẜ</button>
-            <button onclick="addCharacter('ſ')">ſ</button>
-            <button onclick="addCharacter('â')">â</button>
-            <button onclick="addCharacter('à')">à</button>
-            <button onclick="addCharacter('ê')">ê</button>
-            <div class="br-flex"></div>
-            <button onclick="addCharacter('è')">è</button>
-            <button onclick="addCharacter('î')">î</button>
-            <button onclick="addCharacter('ì')">ì</button>
-            <button onclick="addCharacter('ô')">ô</button>
-            <button onclick="addCharacter('û')">û</button>
-          </div>
+        <button onclick="removeFiles()" id="delete_btn">╳</button>
+        <canvas id="img_canvas"></canvas>
+        <div id="img_btn_div">
+          <input type="button" id="img_btn" value="Atpazīt attēlu" onclick="document.getElementById('img_input_btn').click();" class=""/>
+          <input type="file" style="display:none;" id="img_input_btn" name="file" required accept=".bmp, .jpg, .png, .pbm, .webp"/>
+        </div>
+        <textarea id="input" autofocus></textarea>
+        <div id="character_buttons">
+          <button onclick="addCharacter('ẜ')">ẜ</button>
+          <button onclick="addCharacter('ſ')">ſ</button>
+          <button onclick="addCharacter('â')">â</button>
+          <button onclick="addCharacter('à')">à</button>
+          <button onclick="addCharacter('ê')">ê</button>
+          <div class="br-flex"></div>
+          <button onclick="addCharacter('è')">è</button>
+          <button onclick="addCharacter('î')">î</button>
+          <button onclick="addCharacter('ì')">ì</button>
+          <button onclick="addCharacter('ô')">ô</button>
+          <button onclick="addCharacter('û')">û</button>
         </div>
       </div>
         

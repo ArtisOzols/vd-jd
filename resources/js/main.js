@@ -1,24 +1,32 @@
-const image_input = document.querySelector("#image_input");
-const image_div = document.querySelector("#display_image")
+const input_btn = document.getElementById("img_input_btn"); // input that takes image
+const img_btn_div = document.getElementById("img_btn_div"); // button that sets value to input_btn
 const input = document.getElementById('input');
 const output = document.getElementById('output');
-const char_buttons = image_div.children[1];
+const char_buttons = document.getElementById('character_buttons');
+const delete_btn = document.getElementById('delete_btn');
+const canvasForHtml = document.getElementById("img_canvas");
+const ctxForHtml = canvasForHtml.getContext('2d');
 
-image_input.addEventListener("change", function(){
-  document.querySelector("#loading").style.display = "block";
+
+input_btn.addEventListener("change", function(){
+  document.getElementById("loading").style.display = "block";
   output.style.backgroundColor = "lightgray";
   output.style.opacity = "20%";
   
   const reader = new FileReader();
   reader.addEventListener("load", () => {
-    const uploaded_img = reader.result;
-    image_div.style.backgroundImage = `url(${uploaded_img})`;
-    char_buttons.style.display = "none";
-
     let image = new Image();
     image.src = reader.result;
     image.onload = function() {
-      image_div.style.maxHeight = image.height + "px";
+      char_buttons.style.display = "none";
+      img_btn_div.style.display = "none";
+      input.style.display = "none";
+      
+      // Creating canvas to display
+      canvasForHtml.style.display = "block";
+      canvasForHtml.width = this.naturalWidth;
+      canvasForHtml.height = this.naturalHeight;
+      ctxForHtml.drawImage(this, 0, 0);
       
       // Creating canvas for Tesseract
       const canvasForTesseract = document.createElement('canvas');
@@ -44,27 +52,27 @@ image_input.addEventListener("change", function(){
   reader.readAsDataURL(this.files[0]);
 });
 async function image_to_text(img) {
-  const worker = await Tesseract.createWorker("Frak_LV_280721_500k");
+  const worker = await Tesseract.createWorker("Frak_LV_280721_500k", {
+    langPath: "https://artisozols.github.io/vd-jd/global",
+    gzip: false
+  });
   const { data: { text } } = await worker.recognize(img);
+  await worker.terminate();
 
-  document.querySelector("#loading").style.display = "none";
+  document.getElementById("loading").style.display = "none";
   output.style.backgroundColor = "white";
   output.style.opacity = "100%";
   output.value = convert_text(text);  
 };
 
 function removeFiles() {
-  image_input.value = "";
+  input_btn.value = "";
+  img_btn_div.style.display = "block";
   input.value = "";
+  input.style.display = "block";
   input.focus();
   output.value = "";
-
-  document.querySelector("#loading").style.display = "none";
-  output.style.backgroundColor = "white";
-  output.style.opacity = "100%";
-
-  image_div.style.backgroundImage = "none";
-  image_div.style.maxHeight = "unset";
+  canvasForHtml.style.display = "none";
   char_buttons.style.display = "flex";
 }
 

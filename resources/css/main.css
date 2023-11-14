@@ -20,36 +20,75 @@ html {
 
 h1 {
     text-align: center;
-    font-style: italic;
+    font-variant: small-caps;
     font-weight: 400;
+    font-size: 3rem;
+    letter-spacing: 1px;
 }
 
 main {
+    padding: 20px 80px 0 80px;
     display: flex;
-    padding: 0 50px 0 50px;
-}
-
-input {
-    border: none;
+    justify-content: space-around;
 }
 
 .conatiner {
-    padding: 0 20px;
-    display: flex;
-    flex-direction: column;
-    width: 50vw;
+    width: 47%;
     height: 75vh;
-    align-items: baseline;
+    overflow: hidden;
+    position: relative;
 }
 
-#display_image {
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
-    border-radius: 6px;
+#img_btn_div {
+    height: 40px;
     width: 100%;
+    background-color: lightgray;
+    border-bottom: none;
+    border-top-right-radius: 7px;
+    border-top-left-radius: 7px;
+    overflow: hidden;
+}
+
+#img_btn, #delete_btn {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 900;
+    border: none;
+}
+
+#img_btn {
+    background-color: gray;
+    letter-spacing: 2px;
+    width: 40%;
     height: 100%;
-    position: relative;
+    margin-bottom: 10px;
+    border-right: 1px solid black;
+    /* border-bottom-right-radius: 6px;
+    border-top-right-radius: 6px; */
+    color: white;
+}
+
+#delete_btn {
+    position: absolute;
+    z-index: 10;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 8%;
+    background-color: lightgray;
+    margin: 5px 10px;
+    color: black;
+}
+
+#img_btn:hover {
+    background-color: rgb(116, 126, 122);
+}
+
+#img_canvas {
+    margin: auto;
+    max-height: 100%;
+    max-width: 100%;
+    display: none;
 }
 
 #loading {
@@ -76,52 +115,26 @@ input {
 textarea {
     width: 100%;
     height: 100%;
-    border-radius: 6px;
     font-size: 1.2rem;
-    padding: 10px;
+    padding: 20px;
+    border-radius: 6px;
     box-sizing: border-box;
-}
-textarea:focus {
-    border: 2px solid black;
+    background-color: rgb(253, 253, 253);
 }
 
-#image_input {
-    height: 40px;
-    margin-bottom: 10px;
-}
-
-.conatiner {
-    position: relative;
+textarea:focus { 
+    border: none;
+    outline: none !important;
+    background-color: white;
 }
 
 #input {
-    /* font-family: 'UnifrakturMaguntia', cursive;
-    font-size: 1.5rem; */
+    padding-bottom: 10%;
+    border-top-right-radius: 0px;
+    border-top-left-radius: 0px;
 }
 
-#input:focus + .character_buttons {
-    border-color: transparent;
-    padding: 0;
-}
-.conatiner input[type=file]:invalid~#display_image>#input {
-    display: block;
-}
-
-.conatiner input[type=file]~#display_image>#input {
-    display: none;
-}
-
-.input_label {
-    position: relative;
-    width: 100%;
-}
-.delete {
-    position: absolute;
-    right: 0;
-    bottom: -24px;
-}
-
-.character_buttons {
+#character_buttons {
     box-sizing: border-box;
     display: flex;
     flex-wrap: wrap;
@@ -129,23 +142,26 @@ textarea:focus {
     width: 100%;
     background-color: gray;
     position: absolute;
-    bottom: 0px;
-    border: 1.5px solid transparent;
-    border-top: none;
-    border-bottom-left-radius: 6px;
+    bottom: -2px;
     border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    overflow: hidden;
 }
-.character_buttons > button {
+#character_buttons > button {
     width: 10%;
-    padding: 4px 0px;
+    padding: 10px 0px;
     background-color: transparent;
     font-size: 1rem;
     font-weight: 900;
     color: white;
-    border: 1px solid rgb(84, 84, 84);
+    border: 1px solid black;
     border-top: none;
     border-bottom: none;
 }
+#character_buttons > button:hover {
+    background-color: rgb(116, 126, 122);
+}
+
 .br-flex {
     display: none;
 }
@@ -154,31 +170,29 @@ textarea:focus {
 @media screen and (max-width: 800px) {
     main {
         flex-direction: column;
+        padding: 0 20px;
     }
     .conatiner {
         width: 100%;
-        padding: 0;
+        padding: 15px 0;
     }
     #display_image {
         margin-bottom: 20px;
     }
-
+    #img_btn {
+        width: 60%;
+        height: 100%;
+    }
+    h1 {
+        font-size: 2rem;
+    }
 }
 @media screen and (max-width: 401px) {
     main {
         padding: 0 15px;
     }
-    .delete {
-        bottom: -54px;
-        right: unset;
-        left: 0;
-        margin: 0 2px;
-    }
-    #image_input {
-        margin-bottom: 30px;
-        width: 100px;
-    }
-    .character_buttons > button {
+
+    #character_buttons > button {
         width: 20%;
         border-top: 1px solid rgb(84, 84, 84);
         border-bottom: 1px solid rgb(84, 84, 84);
