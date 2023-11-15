@@ -135,16 +135,6 @@ prefixes = {
     "(us": "(uz",
     "-us": "-uz",
 
-# UZ
-    " mazus": " mazuz",
-    "/mazus": "/mazuz",
-    "«mazus": "«mazuz",
-    '"mazus': '"mazuz',
-    "„mazus": "„mazuz",
-    "'mazus": "'mazuz",
-    "(mazus": "(mazuz",
-    "-mazus": "-mazuz",
-
 # NEUZ
     " neus": " neuz",
     "/neus": "/neuz",
@@ -164,7 +154,7 @@ prefixes = {
     "'jāus": "'jāuz",
     "(jāus": "(jāuz",
     "-jāus": "-jāuz",
-
+    
 # IZ
     " is": " iz",
     "/is": "/iz",
@@ -215,16 +205,6 @@ prefixes = {
     "(ais": "(aiz",
     "-ais": "-aiz",
 
-# AIZ
-    " mazais": " mazaiz",
-    "/mazais": "/mazaiz",
-    "«mazais": "«mazaiz",
-    '"mazais': '"mazaiz',
-    "„mazais": "„mazaiz",
-    "'mazais": "'mazaiz",
-    "(mazais": "(mazaiz",
-    "-mazais": "-mazaiz",
-
 # NEAIZ
     " neais": " neaiz",
     "/neais": "/neaiz",
@@ -246,16 +226,6 @@ prefixes = {
     "-jāais": "-jāaiz",
 
 # BEZ
-    " mas": " maz",
-    "/mas": "/maz",
-    "«mas": "«maz",
-    '"mas': '"maz',
-    "„mas": "„maz",
-    "'mas": "'maz",
-    "(mas": "(maz",
-    "-mas": "-maz",
-
-# BEZ
     " bes": " bez",
     "/bes": "/bez",
     "«bes": "«bez",
@@ -265,8 +235,11 @@ prefixes = {
     "(bes": "(bez",
     "-bes": "-bez",
 
+# EXEPTIONS
+    " uzd ": " usd ",
     "iztab": "istab",
     "izlām": "islām",
+    "izland": "Īsland",
     "aizberg": "aisberg",
     "beztsel": "bestsel",
 }
