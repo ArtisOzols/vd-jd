@@ -94,4 +94,8 @@ function addCharacter(char) {
   input.value = x.slice(0, curPos) + char + x.slice(curPos);
   set_output_val();
   input.focus();
+  const char_btn = char_buttons.children;
+  for (let i = 0; i < char_btn.length; i++) {
+    char_btn[i].style.backgroundColor = "transparent";
+  }
 }
