@@ -3,7 +3,7 @@ from LatvianStemmer import stem
 from resources.py.lang_resources.vcc_wordlist import st_vcc
 from resources.py.lang_resources.vcc_wordlist import nost_vcc
 from resources.py.lang_resources import w_prefixs_endings as w_p_e
-from resources.py.lang_resources import fractur_to_latin_dict as dict
+from resources.py.lang_resources import letter_conversion_dict as dict
 from resources.py.lang_resources import old_w_dictionary
 from resources.py.lang_resources import verbs
 
@@ -23,37 +23,43 @@ def change_prefix(w):
     if w_len > 3:
         # If first 4 letters in word are "lidz" and this word stemmed is not in exeption list, "lidz" is replaced with "līdz" 
         if w[:4] == "lidz":
-            if not stem(w) in w_p_e.lidz_st:
+            if not w in w_p_e.lidz and not stem(w) in w_p_e.lidz_st:
                 w = "līdz"+w[4:]
+        if w[:4] == "lids":
+            if not w in w_p_e.lids and not stem(w) in w_p_e.lids_st:
+                w = "līdz"+w[4:]
+                
     if w_len > 2:
-        # If first 3 letters in word are "pec" and this word neither stemmed nor non stemmed is not present in exeption list, "pec" is replaced with "pēc" 
+        # If first 3 letters in word are "pec" and this word non-stemmed is not present in exeption list, "pec" is replaced with "pēc". There is no stemed exception list, because it consists of only 1 word – "pec" 
         if w[:3] == "pec":
-            if not w in w_p_e.pec or not stem(w) in w_p_e.pec_st:
+            if not w in w_p_e.pec:
                 w = "pēc"+w[3:]
-        # If first 2 letters in word are "ja" followed by a vowel (except "u" since there are too many words that start with "jau") and this word neither stemmed nor non stemmed is not present in exeption list, "ja" is replaced with "jā" 
+        # If first 2 letters in word are "ja" followed by a vowel (except "u" since there are too many words that start with "jau") and this word neither stemmed nor non-stemmed is not present in exeption list, "ja" is replaced with "jā" 
         elif w[:3] in {"jaa", "jae", "jai", "jao", "jaā", "jaē", "jaī", "jaū"}:
             if not w in w_p_e.ja_v or not stem(w) in w_p_e.ja_v_st:
                 w = "jā"+w[2:]
     
-        # Changes "s" to "z" in pefixes
-        # If word starts with "is", "us", "ais" or "bes" and word is not in exception list, "s" in prefix is replaced with "z"
-        if w[:2] in ["is", "us"] or w[:3] in ["ais", "bes"]:
-            if not w in w_p_e.pref_exc:
-                if w[:3] == "ais":
-                    return "aiz"+w[3:]
-                if w[:3] == "bes":
-                    return "bez"+w[3:]
-                if w[:2] == "is":
-                    return "iz"+w[2:]
-                if w[:2] == "us":
-                    return "uz"+w[2:]
+    # Changes "s" to "z" in pefixes
+    # If word starts with "is", "us", "ais" or "bes" and word is not in exception list, "s" in prefix is replaced with "z"
+    if w[:2] == "is":
+        if not w in w_p_e.iz and not stem(w) in w_p_e.iz_st:
+            w = "iz"+w[2:]
+    if w[:2] == "us":
+        if not w in w_p_e.uz and not stem(w) in w_p_e.uz_st:
+            w = "uz"+w[2:]
+    if w[:3] == "ais":
+        if not w in w_p_e.aiz and not stem(w) in w_p_e.aiz_st:
+            w = "aiz"+w[3:]
+    if w[:3] == "bes":
+        if not w in w_p_e.bez and not stem(w) in w_p_e.bez_st:
+            w = "bez"+w[3:]
     return w
 
 # Changes "ch" to "h"
 def change_ch(w):
     # If "ch" is in the word and word is not in exception list, "ch" is replaced with "h"
     if "ch" in w:
-        if not w in w_p_e.ch_exc:
+        if not w in w_p_e.ch and stem(w) not in w_p_e.ch_st:
             return w.replace("ch", "h")
     return w
 
@@ -76,7 +82,7 @@ def remove_prefix(w, rm_all=True):
 # Replaces vowel + doubled consonants with vowel and one consonant (e.g., "patti"->"pati", "sattikt"->"satikt")
 def change_vcc(w):
     orig_w, pref = w, ""
-    # Checks if word neather stemmed nor non stemmed is in exception lists. If it is, unmodified word is returned, else – one prefix is removed from the word and added to "pref" variable.
+    # Checks if word neather stemmed nor non-stemmed is in exception lists. If it is, unmodified word is returned, else – one prefix is removed from the word and added to "pref" variable.
     # This process continues until the word has no more prefixes
     while True:
         if stem(w) in st_vcc or w in nost_vcc:
@@ -86,7 +92,7 @@ def change_vcc(w):
         if not new_pref:
             break
     # Next word without prefix will be processed to avoid vowel + doubled consonants in prefix (e.g. "ieeja")
-    # If word still have 3 or more characters, multiple combinations of vowel + doubled consonants are generated and checked if they are present in the word. If they are and if word neather stemmed nor non stemmed are present in exception list, doubled consonant is removed.
+    # If word still have 3 or more characters, multiple combinations of vowel + doubled consonants are generated and checked if they are present in the word. If they are and if word neather stemmed nor non-stemmed are present in exception list, doubled consonant is removed.
     # This process continues either until the word is in exception list or until there are no vowel with doubled consonant in the word. In both cases word is returned with its prefix
     if len(w) > 2:
         for v in a_e_i_u | {"o"}:
@@ -101,8 +107,8 @@ def change_vcc(w):
 def change_c_v_san(w, st_w):
     # Checks if last 3 letters of stemmed word is "šan" and before it – a short vowel
     if st_w[-3:] == "šan" and st_w[-4] in a_e_i_u:
-        # If stemmed word is in exception list, non stemmed word is returned
-        if st_w in w_p_e.c_v_san_exc:
+        # If stemmed word is in exception list, non-stemmed word is returned
+        if st_w in w_p_e.c_v_san:
             return w
         # Checks if the 5th character from the end is consonant. If it is – following vowel in nonstemmed word is changed to long vowel
         if not st_w[-5] in vowels:
@@ -117,7 +123,7 @@ def change_v_taj(w, st_w):
         # Checks if stemmed word is not in exception list. "v_taj_short_a" consists of stemmed words that ends with a vowel + "taj"
         if not st_w in w_p_e.v_taj_short_a:
             v = st_w[-4]
-            # Checks if the vowel (4th character from the end) is a short vowel. If it is – non stemmed word is returned with long vowel followed by "tāj" (instead of "taj"); if it is not – only "taj" is replaced with "tāj"
+            # Checks if the vowel (4th character from the end) is a short vowel. If it is – non-stemmed word is returned with long vowel followed by "tāj" (instead of "taj"); if it is not – only "taj" is replaced with "tāj"
             if v in a_e_i_u:
                 return w.replace(v+"taj", s_to_l_vowels[v]+"tāj")
             else:
@@ -128,7 +134,7 @@ def change_v_taj(w, st_w):
         if not "jautāj" in st_w and not "maitāj" in st_w:
             # Checks if stemmed word is not in exception list. "sv_taj_long_a" consists of stemmed words that ends with short vowel + "tāj"
             if not st_w in w_p_e.sv_taj_long_a:
-                # Returns non stemmed word with long vowel before "tāj"
+                # Returns non-stemmed word with long vowel before "tāj"
                 return w.replace(st_w[-4]+"tāj", s_to_l_vowels[st_w[-4]]+"tāj")
     return w
 
@@ -189,8 +195,8 @@ def change_verb_ending(w):
     return w
 
 def change_c_ib(w, st_w):
-    if not w in w_p_e.ib_exc_nost:
-        if not st_w in w_p_e.ib_exc_st:
+    if not w in w_p_e.ib_nost:
+        if not st_w in w_p_e.ib_st:
             if len(st_w) > 2:
                 if st_w[-3] in consonants and st_w[-2:] == "ib":
                     return w.replace(st_w, st_w[:-2]+"īb")
@@ -198,8 +204,8 @@ def change_c_ib(w, st_w):
 
 def edit_w(w):
     w = change_prefix(w)
-
     w = change_ch(w)
+
     w = change_vcc(w)
     w = change_verb_ending(w)
 
@@ -213,9 +219,9 @@ def edit_w(w):
         w = old_w_dictionary.o_w_dict[w]
         
     # Endings
-    if w[-3:] == "ak":
-        if not w in w_p_e.ak_exc:
-            w = w[:-3] + "ak"
+    if w[-2:] == "ak":
+        if not w in w_p_e.ak:
+            w = w[:-2] + "āk"
     # if w[-3:] == "ges":
     #     w = w[:-3] + "gas"
 
@@ -279,7 +285,7 @@ def change_ee_to_ie(text):
         text = text.replace(value+"╔", key)
     return text
 
-def fraktur_to_latin(text, x=False, r=True, ee_only=False, change_S_to_Z=True):
+def letter_conversion(text, x=False, r=True, ee_only=False, change_S_to_Z=True):
     text = " " + text + " "
     # \n, \t
     text = text.replace("\n", " 🤯 ")
@@ -330,9 +336,6 @@ def fraktur_to_latin(text, x=False, r=True, ee_only=False, change_S_to_Z=True):
     text = text.replace("Ꞩ", "S")
     text = change_key_val(text, dict.s_š_č)
 
-    # PREFIXES
-    text = change_key_val(text, dict.prefixes)
-
     # EE
     text = change_ee_to_ie(text)
 
@@ -346,7 +349,7 @@ def fraktur_to_latin(text, x=False, r=True, ee_only=False, change_S_to_Z=True):
 # Boolean: x - if True converts "x" to "ks"; r - if True converts "ŗ" to "r"; ee_only - if True converts only "ee" to "ie" in text; change_S_to_Z - if True converts "S" to "Z"
 def convert(text, x=False, r=True, ee_only=False, change_S_to_Z=True):
     # Converts old letters and prefixes in text to those used in modern Latvian
-    text = fraktur_to_latin(text, x, r, ee_only, change_S_to_Z)
+    text = letter_conversion(text, x, r, ee_only, change_S_to_Z)
     # Text modernization – splits text into words, converts them and returns modernized text 
     text = split_and_edit_words(text, r=False)
     return text
