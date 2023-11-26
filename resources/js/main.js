@@ -3,7 +3,6 @@ const img_btn_div = document.getElementById("img_btn_div"); // button that sets 
 const input = document.getElementById('input');
 const output = document.getElementById('output');
 const char_buttons = document.getElementById('character_buttons');
-const delete_btn = document.getElementById('delete_btn');
 const canvasForHtml = document.getElementById("img_canvas");
 const ctxForHtml = canvasForHtml.getContext('2d');
 
