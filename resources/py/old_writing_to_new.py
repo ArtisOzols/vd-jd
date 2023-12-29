@@ -2,6 +2,7 @@ import re
 from LatvianStemmer import stem
 from resources.py.lang_resources.vcc_wordlist import st_vcc
 from resources.py.lang_resources.vcc_wordlist import nost_vcc
+from resources.py.lang_resources.vcc_wordlist import st_adj_adv_with_s
 from resources.py.lang_resources import w_prefixs_endings as w_p_e
 from resources.py.lang_resources import letter_conversion_dict as dict
 from resources.py.lang_resources import old_w_dictionary
@@ -13,6 +14,14 @@ a_e_i_u = {"a", "e", "i", "u"}
 vowels = {"a", "e", "i", "o", "u", "ā", "ē", "ī", "ū"}
 s_to_l_vowels = {"a": "ā", "e": "ē", "i": "ī", "u": "ū"}
 diacritic_char = {"ā", "č", "ē", "ģ", "ī", "ķ", "ļ", "ņ", "š", "ū", "ž"}
+
+# Changes "ch" to "h"
+def change_ch(w):
+    # If "ch" is in the word and word is not in exception list, "ch" is replaced with "h"
+    if "ch" in w:
+        if not w in w_p_e.ch and stem(w) not in w_p_e.ch_st:
+            return w.replace("ch", "h")
+    return w
 
 # Changes prefixes – short to long vowel ("lidz" to "līdz"; "pec" to "pēc"; "ja"+vowel (exc. "u") to "jā"+vowel) and "s" to "z" in "is", "us", "ais", "bes"
 def change_prefix(w):
@@ -55,14 +64,6 @@ def change_prefix(w):
             w = "bez"+w[3:]
     return w
 
-# Changes "ch" to "h"
-def change_ch(w):
-    # If "ch" is in the word and word is not in exception list, "ch" is replaced with "h"
-    if "ch" in w:
-        if not w in w_p_e.ch and stem(w) not in w_p_e.ch_st:
-            return w.replace("ch", "h")
-    return w
-
 # Removes prefix
 def remove_prefix(w, rm_all=True):
     for p in w_p_e.pref:
@@ -79,29 +80,65 @@ def remove_prefix(w, rm_all=True):
     # If word dont have any prefix, word with nothing is returned
     return (w, "")
 
-# Replaces vowel + doubled consonants with vowel and one consonant (e.g., "patti"->"pati", "sattikt"->"satikt")
-def change_vcc(w):
-    orig_w, pref = w, ""
+def check_vcc(w):
+    nnext_ch, next_ch = None, "" # None, because during 1st iteration they both must not be the same
+    for ch in w[::-1]: # This is done backwards to avoid finding vcc in prefixes
+        if ch in ["a", "e", "i", "o", "u"] and nnext_ch == next_ch:
+            return ch + next_ch + nnext_ch
+        nnext_ch = next_ch
+        next_ch = ch
+
+def check_vcc_exc(w):
     # Checks if word neather stemmed nor non-stemmed is in exception lists. If it is, unmodified word is returned, else – one prefix is removed from the word and added to "pref" variable.
     # This process continues until the word has no more prefixes
     while True:
-        if stem(w) in st_vcc or w in nost_vcc:
-            return orig_w
-        w, new_pref = remove_prefix(w, False)
-        pref += new_pref
-        if not new_pref:
-            break
+        st_w = stem(w)
+        if st_w[-4:] == "ošāk":
+            st_w = st_w[:-4]
+        elif st_w[-2:] in ["āk", "oš"]:
+            st_w = st_w[:-2]
+
+        if st_w in st_vcc or w in nost_vcc:
+            return True
+
+        w, pref = remove_prefix(w, False)
+        if not pref:
+            return False
+
+# Replaces vowel + doubled consonants (hereinafter VCC) with vowel and one consonant (e.g., "patti"->"pati", "sattikt"->"satikt", "attiekksme"->"attieksme")
+def change_vcc(w):
+    ## MUST REWRITE COMMENTS
     # Next word without prefix will be processed to avoid vowel + doubled consonants in prefix (e.g. "ieeja")
     # If word still have 3 or more characters, multiple combinations of vowel + doubled consonants are generated and checked if they are present in the word. If they are and if word neather stemmed nor non-stemmed are present in exception list, doubled consonant is removed.
     # This process continues either until the word is in exception list or until there are no vowel with doubled consonant in the word. In both cases word is returned with its prefix
+
+    # Words with 3 or more letters are verified
     if len(w) > 2:
-        for v in a_e_i_u | {"o"}:
-            for c in consonants:
-                if v+c+c in w:
-                    if stem(w) in st_vcc or w in nost_vcc:
-                        return pref + w
-                    w = w.replace(v+c+c, v+c)
-    return pref + w
+        pref = ""
+        while True:
+            vcc = check_vcc(w)
+            if not vcc or check_vcc_exc(w):
+                return pref + w
+            
+            # Checking if w is not in superlative degree.
+            # If it is, 1st 4 letters should be "viss", then we check if stemmed word without "vis" and "āk" is not in adjectiveor adverb words that start with "s"
+            if "vissas" == w[:6] and stem(w)[5:-2] in st_adj_adv_with_s:
+                pref, w = "vissa", w[5:]
+                continue
+            if "viss" == w[:4] and stem(w)[3:-2] in st_adj_adv_with_s:
+                pref, w = "vis", w[3:]
+                continue
+            w = vcc[:2].join(w.rsplit(vcc,1)) # Replaces 1 occurrence starting from the end 
+    else:
+        return w
+            # REMOVE THIS ↓↓↓     
+            # w, new_pref = remove_prefix(w, False)
+            # if not new_pref:
+            #     w = w.replace(vcc, vcc[:2])
+            # else:
+            #     if new_pref[-1:] in ["a", "e", "i", "o", "u"] and w[:1] == w[1:2]:
+            #         w = w[1:]
+            #     pref += new_pref
 
 # Replaces short to long vowel if before vowel is consonant but after – "šan"
 def change_c_v_san(w, st_w):
@@ -152,17 +189,22 @@ def mod_verb(w, verb_list, end):
                 w = w[:-1] + s_to_l_vowels[v]
 
                 # Checks if w (without end and long vowel as last character) with and without prefix can be found in verb_list
-                nopref_w = remove_prefix(w)[0]
-                if nopref_w in verb_list or w in verb_list:
-                    # If verb exists, it is returned modified with end
-                    return w + end
+                original_mod_w = w
+                while True:
+                    if w in verb_list:
+                        # If verb exists, it is returned modified with end
+                        return original_mod_w + end
+                    w, pref = remove_prefix(w, rm_all=False)
+                    if not pref:
+                        break
 
 # Change short to long vowel in verb suffix and ending
 def change_verb_ending(w):
     # Infinitive, past, future and II conj. present. This will not work for I conj. verbs, except for some words in infinitive form
-    # Checks if word is in one of these categories. If it is, word is modified, else – passed unmodified to the next for loop to check if it is a verb of III conj. 1st group 
-    for end in ["sieties", "jāmies", "jamies", "jāties", "jaties", "simies", "amies", "aties", "ties", "jies", "siet", "sies", "jām", "jam", "jāt", "jat", "jos", "jās", "jas", "sim", "šos", "am", "ju", "ji", "ja", "šu", "si", "s", "t"]:
-        if w[-len(end):] == end:
+    # Checks if word is in one of these categories. If it is, word is modified, else – passed unmodified to the next for loop to check if it is a verb of III conj. 1st group
+    # 3rd pers. future (-s) is excluded, because this would change nouns in plural (e.g., "būves" should not be converted to verb "būvēs" since "būves" is also noun in plural)
+    for end in ["sieties", "jāmies", "jamies", "jāties", "jaties", "simies", "amies", "aties", "ties", "jies", "siet", "sies", "jām", "jam", "jāt", "jat", "jos", "jās", "jas", "sim", "šos", "am", "ju", "ji", "ja", "šu", "si", "t"]:
+        if w[-len(end):] == end: 
             # Infinitive form
             # Change short to long vowel in verb suffix and ending if verb is in all_verbs – list of all verbs without endings "ties"and "t"
             if end in ["ties", "t"]:
@@ -187,11 +229,16 @@ def change_verb_ending(w):
 
             # Ending is removed; and then – prefix
             mod_w = w[:-end_l]
-            nopref_mod_w = remove_prefix(mod_w)[0]
+
             # Checks if any – with and without prefix word can be found in iii_first_g list – list of stemmed III conj. 1st group verbs
-            if nopref_mod_w in verbs.iii_first_g or mod_w in verbs.iii_first_g:
-                end = end.replace("a", "ā")
-                return mod_w+end
+            original_mod_w = mod_w
+            while True:
+                if mod_w in verbs.iii_first_g:
+                    end = end.replace("a", "ā")
+                    return original_mod_w+end
+                mod_w, pref = remove_prefix(mod_w, rm_all=False)
+                if not pref:
+                    break
     return w
 
 def change_c_ib(w, st_w):
@@ -203,21 +250,6 @@ def change_c_ib(w, st_w):
     return w
 
 def edit_w(w):
-    w = change_prefix(w)
-    w = change_ch(w)
-
-    w = change_vcc(w)
-    w = change_verb_ending(w)
-
-    st_w = stem(w)
-    if len(st_w) > 4:
-        w = change_c_v_san(w, st_w)
-        w = change_v_taj(w, st_w)
-    w = change_c_ib(w, st_w)
-
-    if w in old_w_dictionary.o_w_dict:
-        w = old_w_dictionary.o_w_dict[w]
-        
     # Endings
     if w[-2:] == "ak":
         if not w in w_p_e.ak:
@@ -227,7 +259,23 @@ def edit_w(w):
 
     # if w[-4:] == "dait":
     #     w = w[:-4] + "diet"
+            
 
+    w = change_prefix(w)
+    w = change_ch(w)
+
+    w = change_vcc(w)
+    w = change_verb_ending(w)
+
+    st_w = stem(w)
+    if len(st_w) > 4:
+        w, st_w = change_c_v_san(w, st_w), stem(w)
+        w, st_w = change_v_taj(w, st_w), stem(w)
+    w, st_w = change_c_ib(w, st_w), stem(w)
+
+    if w in old_w_dictionary.o_w_dict:
+        w = old_w_dictionary.o_w_dict[w]
+    
     return w
 
 
@@ -316,7 +364,7 @@ def letter_conversion(text, x=False, r=True, ee_only=False, change_S_to_Z=True):
 
     # Z, Ž, Č, ST, SD, SP
     text = text.replace("ſ", "z")
-
+    # coding exceptions
     for key, value in dict.st_tzch_exc.items():
         text = text.replace(key.upper(), value+"▌")
         text = text.replace(key.title(), value+"▐")
@@ -324,6 +372,7 @@ def letter_conversion(text, x=False, r=True, ee_only=False, change_S_to_Z=True):
 
     text = change_key_val(text, dict.st_tzch_sch_zch)
 
+    # decoding exceptions
     for key, value in dict.st_tzch_exc.items():
         text = text.replace(value+"▌", key.upper())
         text = text.replace(value+"▐", key.title())
