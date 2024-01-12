@@ -39,42 +39,6 @@ lengthmarks_w_z = {
     "z": "c",
 }
 
-z_cap = {
-    "S ": "┌■",
-    "S,": "┌²",
-    "S.": "┌³",
-    "S:": "┌¹",
-    "S:": "┌·",
-    "S!": "┌°",
-    "S?": "┌┘",
-    "S*": "┌×",
-    "S/": "┌¤",
-    "S»": "┌▓",
-    'S"': '┌│',
-    "S”": "┌┤",
-    "S'": "┌┴",
-    "S)": "┌├",
-    "S-": "┌┬",
-
-    "S": "Z",
-
-    "┌■": "S ",
-    "┌²": "S,",
-    "┌³": "S.",
-    "┌¹": "S:",
-    "┌·": "S:",
-    "┌°": "S!",
-    "┌┘": "S?",
-    "┌×": "S*",
-    "┌¤": "S/",
-    "┌▓": "S»",
-    '┌│': 'S"',
-    "┌┤": "S”",
-    "┌┴": "S'",
-    "┌├": "S)",
-    "┌┬": "S-",
-}
-
 s_ž_š = {
     "zch": "ž",
     "zh": "ž",
@@ -82,87 +46,6 @@ s_ž_š = {
     "sch": "š",
 }
 
-ee_exc_1 = {
-    "neeee!": "☼☺",
-    "neee!": "☼☻",
-    " nee!": "☼♣",
-    "/nee!": "☼♠",
-    "«nee!": "☼•",
-    '"nee!': "☼◘",
-    "„nee!": "☼○",
-    "'nee!": "☼◙",
-    "(nee!": "☼♂",
-    "-nee!": "☼♀",
-
-    "neeeee": "☼♪", # neieie
-
-    "neeee": "☼╬",
-    "eeee": "☼═", # ieie
-
-    "neee": "☼╠", # neie
-    "iee": "☼╦",
-
-    # neesmu, neej, neefektīvs, neelpo, neecēt
-    " nees": "♫♥",
-    "/nees": "♫♦",
-    "«nees": "♫♣",
-    '"nees': "♫♠",
-    "„nees": "♫•",
-    "'nees": "♫◘",
-    "(nees": "♫○",
-    "-nees": "♫◙",
-
-    " neej": "►♥",
-    "/neej": "►♦",
-    "«neej": "►♣",
-    '"neej': "►♠",
-    "„neej": "►•",
-    "'neej": "►◘",
-    "(neej": "►○",
-    "-neej": "►◙",
-
-    " neef": "◄♥",
-    "/neef": "◄♦",
-    "«neef": "◄♣",
-    '"neef': "◄♠",
-    "„neef": "◄•",
-    "'neef": "◄◘",
-    "(neef": "◄○",
-    "-neef": "◄◙",
-
-    " neel": "↕♥",
-    "/neel": "↕♦",
-    "«neel": "↕♣",
-    '"neel': "↕♠",
-    "„neel": "↕•",
-    "'neel": "↕◘",
-    "(neel": "↕○",
-    "-neel": "↕◙",
-
-    " neecē": "‼♥",
-    "/neecē": "‼♦",
-    "«neecē": "‼♣",
-    '"neecē': "‼♠",
-    "„neecē": "‼•",
-    "'neecē": "‼◘",
-    "(neecē": "‼○",
-    "-neecē": "‼◙",
-
-    # neekranizēts, neekvivalents, neekvadoras/toriāls, neekonomiski, neekoloģiski, neeksistē
-    "eekrani": "¶☺",
-    "eekviv": "¶☻",
-    "eekva": "¶♥",
-    "eekono": "¶♦",
-    "eekol": "¶♠",
-    "eeksis": "¶♣",
-}
-
-ee_exc_2 = {
-    "☼♪": "neieie",
-    "☼╬": "neiee",
-    "☼═": "ieie",
-    "☼╠": "neie",
-}
 # ____________________________________________________________________________________
 # Exceptions
 nee_st = {'neesoš', 'neesīb', 'neestētisk', 'neencefalon', 'neekvivalent', 'neejoš', 'needern', 'neestētiskum', 'neesamīb'}

@@ -15,52 +15,40 @@ vowels = {"a", "e", "i", "o", "u", "ā", "ē", "ī", "ū"}
 s_to_l_vowels = {"a": "ā", "e": "ē", "i": "ī", "u": "ū"}
 diacritic_char = {"ā", "č", "ē", "ģ", "ī", "ķ", "ļ", "ņ", "š", "ū", "ž"}    
 
-# Changes "ch" to "h"
-def change_ch(w):
-    # If "ch" is in the word and word is not in exception list, "ch" is replaced with "h"
-    if "ch" in w:
-        if not w in w_p_e.ch and stem(w) not in w_p_e.ch_st:
-            return w.replace("ch", "h")
-    return w
-
 # Changes prefixes – "s" to "z" in "is", "us", "ais", "bes", "līds", "lids"; "z" to "s" in prefixes that ends with "s" followed by "t", "d" or "p"; short to long vowel ("lidz" to "līdz"; "pec" to "pēc"; "ja"+vowel (exc. "u") to "jā"+vowel)
 def change_prefix(w):
     # Converting prefixes that ends with "s" (but should end with 'z')
-    
-    # Counts word characters, then edits those words longer that 4 characters, then those longer than 3
-    w_len = len(w)
 
     # Changes short to long vowel in pefixes  
-    if w_len > 3:
-        # If first 4 letters in word are "lidz" and this word stemmed is not in exeption list, "lidz" is replaced with "līdz" 
-        if w[:4] == "lidz":
-            if not w in w_p_e.lidz and not stem(w) in w_p_e.lidz_st:
-                w = "līdz"+w[4:]
-        if w[:4] == "lids":
-            if not w in w_p_e.lids and not stem(w) in w_p_e.lids_st:
-                w = "līdz"+w[4:]
+    # If first 4 letters in word are "lidz" and this word stemmed is not in exeption list, "lidz" is replaced with "līdz" 
+    if w[:4] == "lidz":
+        if not w in w_p_e.lidz and not stem(w) in w_p_e.lidz_st:
+            w = "līdz"+w[4:]
+    if w[:4] == "lids":
+        if not w in w_p_e.lids and not stem(w) in w_p_e.lids_st:
+            w = "līdz"+w[4:]
 
-        # If word starts with "is", "us", "ais" or "bes" and word is not in exception list, "s" in prefix is replaced with "z"
-        if w[:2] == "is":
-            if not w in w_p_e.iz and not stem(w) in w_p_e.iz_st:
-                w = "iz"+w[2:]
-        if w[:2] == "us":
-            if not w in w_p_e.uz and not stem(w) in w_p_e.uz_st:
-                w = "uz"+w[2:]
-        if w[:3] == "ais":
-            if not w in w_p_e.aiz and not stem(w) in w_p_e.aiz_st:
-                w = "aiz"+w[3:]
-        # if w[:3] == "bes":
-        #     if not w in w_p_e.bez and not stem(w) in w_p_e.bez_st:
-        #         w = "bez"+w[3:]
+    # If word starts with "is", "us", "ais" or "bes" and word is not in exception list, "s" in prefix is replaced with "z"
+    if w[:2] == "is":
+        if not w in w_p_e.iz and not stem(w) in w_p_e.iz_st:
+            w = "iz"+w[2:]
+    if w[:2] == "us":
+        if not w in w_p_e.uz and not stem(w) in w_p_e.uz_st:
+            w = "uz"+w[2:]
+    if w[:3] == "ais":
+        if not w in w_p_e.aiz and not stem(w) in w_p_e.aiz_st:
+            w = "aiz"+w[3:]
+    if w[:3] == "bes":
+        if not w in w_p_e.bez and not stem(w) in w_p_e.bez_st:
+            w = "bez"+w[3:]
 
-        # converting prefixes that ends with "z" (but should end with "s") with following letter  "t", "d" or "p"
-        for p in w_p_e.pref_with_st_sd_sp:
-            if w[:len(p)] == p:
-                w = w.replace(p, p[:-2]+"s"+p[-1])
+    # converting prefixes that ends with "z" (but should end with "s") with following letter  "t", "d" or "p"
+    for p in w_p_e.pref_with_st_sd_sp:
+        if w[:len(p)] == p:
+            w = w.replace(p, p[:-2]+"s"+p[-1])
 
     # Converting prefixes "ja"+vowel (but should contain long vowel)
-    if w_len > 2:
+    if len(w) > 2:
         # If first 3 letters in word are "pec" and this word non-stemmed is not present in exeption list, "pec" is replaced with "pēc". There is no stemed exception list, because it consists of only 1 word – "pec" 
         # if w[:3] == "pec":
         #     if not w in w_p_e.pec:
@@ -69,10 +57,8 @@ def change_prefix(w):
         # If first 2 letters in word are "ja" followed by a vowel (except "u" since there are too many words that start with "jau") and this word neither stemmed nor non-stemmed is not present in exeption list, "ja" is replaced with "jā" 
         if w[:3] in {"jaa", "jae", "jai", "jao", "jaā", "jaē", "jaī", "jaū"}:
             if not w in w_p_e.ja_v or not stem(w) in w_p_e.ja_v_st:
-                w = "jā"+w[2:]
-                    
+                w = "jā"+w[2:]                    
     return w
-
 
 # Removes prefix
 def remove_prefix(w, rm_all=True):
@@ -95,14 +81,62 @@ def remove_prefix(w, rm_all=True):
     # If word dont have any prefix, word with nothing is returned
     return (w, "")
 
+def change_ee(w):
+    pref = ""
+    if w[:3] == "nee":
+        if not stem(w) in dict.nie_st and not w in dict.nie_nost:
+            if not stem(w) in dict.nee_st and not w in dict.nee_nost:
+                w, pref = w[2:], "ne"
+        if not pref:    
+            return w
+    return pref + w.replace("ee", "ie")
+
+# TZCH→Č, TSCH→Č
+def change_tzch_tsch(w):
+    w, pref = remove_prefix(w, rm_all=True)
+    zs_ch_frakt = {"ž": "zch","š": "sch"}
+    for zs_ch in ["ž", "š"]:
+        # For cases when last letter of prefix is "t" and first letter of word (without prefix) is "ž" or "š"
+        if pref[-1:] == "t" and w[0] == zs_ch:
+            # These lists contains words after prefix removal whose prefix's last letter is t and word 1st letter is "ž" or "š" (e.g., "tšūt" from word "atšūt") 
+            if not stem("t"+w) in dict.tzch_tsch_ext[f"t{zs_ch_frakt[zs_ch]}_st_pref"] and not "t"+w in dict.tzch_tsch_ext[f"t{zs_ch_frakt[zs_ch]}_nost_pref"]:
+                w = pref[:-1] + "č" + w[1:]
+                w, pref = remove_prefix(w, rm_all=True)
+        # For cases when "tž" or "tš" is in the middle or end of the word
+        if "t"+zs_ch in w:
+            if not stem(w) in dict.tzch_tsch_ext[f"t{zs_ch_frakt[zs_ch]}_st"] and not w in dict.tzch_tsch_ext[f"t{zs_ch_frakt[zs_ch]}_nost"]:
+                w = w.replace("t"+zs_ch, "č")
+    return pref + w
+
+# ZT→ST, ZD→SD, ZP→SP
+def change_st_zt_sp(w):
+    nopref_w, pref = remove_prefix(w, rm_all=True)
+    mod_nopref_w = nopref_w
+    for z_tdp in ["zt", "zd", "zp"]:
+        if z_tdp in mod_nopref_w:
+            if not stem(mod_nopref_w) in dict.z_tdp_exc[z_tdp+"_st"] and not mod_nopref_w in dict.z_tdp_exc[z_tdp+"_nost"]:
+                mod_nopref_w = mod_nopref_w.replace(z_tdp, "s"+z_tdp[-1])
+
+    if nopref_w != mod_nopref_w:
+        return w.replace(nopref_w, mod_nopref_w)
+    return w
+
+# CH→H
+def change_ch(w):
+    # If "ch" is in the word and word is not in exception list, "ch" is replaced with "h"
+    if "ch" in w:
+        if not w in w_p_e.ch and stem(w) not in w_p_e.ch_st:
+            return w.replace("ch", "h")
+    return w
+
+# Checks word for vowel followed by 2 consonants
 def check_vcc(w):
     nnext_ch, next_ch = None, "" # None, because during 1st iteration they both must not be the same
     for ch in w[::-1]: # This is done backwards to avoid finding vcc in prefixes
-        if ch in ["a", "e", "i", "o", "u"] and nnext_ch == next_ch:
+        if ch in ["a", "e", "i", "o", "u"] and nnext_ch == next_ch and not nnext_ch in vowels:
             return ch + next_ch + nnext_ch
         nnext_ch = next_ch
         next_ch = ch
-
 def check_vcc_exc(w):
     # Checks if word neather stemmed nor non-stemmed is in exception lists. If it is, unmodified word is returned, else – one prefix is removed from the word and added to "pref" variable.
     # This process continues until the word has no more prefixes
@@ -152,10 +186,8 @@ def change_c_v_san(w, st_w):
     # Checks if last 3 letters of stemmed word is "šan" and before it – a short vowel
     if st_w[-3:] == "šan" and st_w[-4] in a_e_i_u:
         # If stemmed word is in exception list, non-stemmed word is returned
-        if st_w in w_p_e.c_v_san:
-            return w
         # Checks if the 5th character from the end is consonant. If it is – following vowel in nonstemmed word is changed to long vowel
-        if not st_w[-5] in vowels:
+        if not st_w in w_p_e.c_v_san and not st_w[-5] in vowels:
             v = st_w[-4]
             return w.replace(v+"šan", s_to_l_vowels[v]+"šan")
     return w
@@ -257,108 +289,51 @@ def change_c_ib(w, st_w):
     return w
 
 def edit_w(w):
-    w = change_prefix(w)
-
     # Endings
     if w[-2:] == "ak":
         if not w in w_p_e.ak:
             w = w[:-2] + "āk"
     # if w[-3:] == "ges":
     #     w = w[:-3] + "gas"
-
     # if w[-4:] == "dait":
     #     w = w[:-4] + "diet"
-
-    def change_ee(w):
-        pref = ""
-        if w[:3] == "nee":
-            if not stem(w) in dict.nie_st and not w in dict.nie_nost:
-                if not stem(w) in dict.nee_st and not w in dict.nee_nost:
-                    w, pref = w[2:], "ne"
-            if not pref:    
-                return w
-        return pref + w.replace("ee", "ie")
-                
-
-    # TZCH→Č, TSCH→Č
-    def change_tzch_tsch(w):
-        w, pref = remove_prefix(w, rm_all=True)
-        zs_ch_frakt = {"ž": "zch","š": "sch"}
-        for zs_ch in ["ž", "š"]:
-            # For cases when last letter of prefix is "t" and first letter of word (without prefix) is "ž" or "š"
-            if pref[-1:] == "t" and w[0] == zs_ch:
-                # These lists contains words after prefix removal whose prefix's last letter is t and word 1st letter is "ž" or "š" (e.g., "tšūt" from word "atšūt") 
-                if not stem("t"+w) in dict.tzch_tsch_ext[f"t{zs_ch_frakt[zs_ch]}_st_pref"] and not "t"+w in dict.tzch_tsch_ext[f"t{zs_ch_frakt[zs_ch]}_nost_pref"]:
-                    w = pref[:-1] + "č" + w[1:]
-                    w, pref = remove_prefix(w, rm_all=True)
-            # For cases when "tž" or "tš" is in the middle or end of the word
-            if "t"+zs_ch in w:
-                if not stem(w) in dict.tzch_tsch_ext[f"t{zs_ch_frakt[zs_ch]}_st"] and not w in dict.tzch_tsch_ext[f"t{zs_ch_frakt[zs_ch]}_nost"]:
-                    w = w.replace("t"+zs_ch, "č")
-        return pref + w
-    
-    def change_st_zt_sp(w):
-        # ZT→ST, ZD→SD, ZP→SP
-        nopref_w, pref = remove_prefix(w, rm_all=True)
-        mod_nopref_w = nopref_w
-        for z_tdp in ["zt", "zd", "zp"]:
-            if z_tdp in mod_nopref_w:
-                if not stem(mod_nopref_w) in dict.z_tdp_exc[z_tdp+"_st"] and not mod_nopref_w in dict.z_tdp_exc[z_tdp+"_nost"]:
-                    mod_nopref_w = mod_nopref_w.replace(z_tdp, "s"+z_tdp[-1])
-
-        if nopref_w != mod_nopref_w:
-            return w.replace(nopref_w, mod_nopref_w)
-        return w
 
     w = change_prefix(w)
     w = change_ee(w)
     w = change_tzch_tsch(w)
     w = change_st_zt_sp(w)
     w = change_ch(w)
-    # JĀSALABO ŠIS (neieelpo) :(
     w = change_vcc(w)
     w = change_verb_ending(w)
-
+    
     st_w = stem(w)
+    w = change_c_ib(w, st_w)
     if len(st_w) > 4:
-        w, st_w = change_c_v_san(w, st_w), stem(w)
-        w, st_w = change_v_taj(w, st_w), stem(w)
-    w, st_w = change_c_ib(w, st_w), stem(w)
+        w = change_c_v_san(w, st_w)
+        w = change_v_taj(w, st_w)
 
     if w in old_w_dictionary.o_w_dict:
         w = old_w_dictionary.o_w_dict[w]
-    
+
     return w
 
-def split_and_edit_words(text, r=False):
-    # Converts "ŗ", "Ŗ" to "r", "R"
-    if r:
-        text = text.replace("Ŗ", "R")
-        text = text.replace("ŗ", "r")
+def split_and_edit_words(text):
+    """Splits text into words (Words can contain "'" and can be number word ending, like "arr'", "15ajjā")"""
+    words = re.findall(r"\w+(?:['-]\w+)?", text)
+    for w in set(words):
+        w = w.replace("S", "Z")
+        mod_w = edit_w(w.lower())
+        if w.lower():
+            text = text.replace(w, mod_w)
+        elif w.istitle():
+            text = text.replace(w, mod_w.title())
+        elif w.isupper():
+            text = text.replace(w, mod_w.upper())
+        else:
+            # Replaces word with modified in text. Word is returned in lowcase. This may not be original case
+            text = text.replace(w, mod_w)
+    return text
 
-    # Split text into words (Words can contain "'" and numbers, like "arr'", "15ajjā"), escape characters, punctuations, numbers, spaces, symbols
-    words = re.findall(r"\w+(?:['-]\w+)?|\s+|[^\w\s]", text)
-    for w in words:
-        # True for numbers and words (they can contain "'" and numbers (like "arr'", "15ajjā")
-        if w.isalnum() or "'" in w or "-" in w:
-            # True if is not number
-            if not w.isnumeric():
-                # Edits word; if word differs from original, it is replaced in the "words" list retaining original case.
-                # Lowcases and edits word; Returns the word in original case
-                mod_w = edit_w(w.lower())
-                # True if word has changed
-                if mod_w != w.lower():
-                    if w.istitle():
-                        # Replaces word with modified word in "words" list. Word is returned in original title case
-                        words[words.index(w)] = mod_w.title()
-                    elif w.isupper():
-                        # Replaces word with modified word in "words" list. Word is returned in original ipper case
-                        words[words.index(w)] = mod_w.upper()
-                    else:
-                        # Replaces word with modified word in "words" list. Word is returned in lowcase. This may not be original case
-                        words[words.index(w)] = mod_w
-    # Concatinates split text
-    return "".join(words)
 
 def change_key_val(text, d):
     for key, value in d.items():
@@ -368,71 +343,54 @@ def change_key_val(text, d):
         text = text.replace(key, value)
     return text
 
-def change_ee_to_ie(text):
-    for key, value in dict.ee_exc_1.items():
-        text = text.replace(key.upper(), value+"§")
-        text = text.replace(key.title(), value+"╩")
-        text = text.replace(key, value+"╔")
-    text = change_key_val(text, {"ee": "ie"})
-    for key, value in dict.ee_exc_2.items():
-        text = text.replace(key+"§", value.upper())
-        text = text.replace(key+"╩", value.title())
-        text = text.replace(key+"╔", value)
-    for key, value in dict.ee_exc_1.items():
-        text = text.replace(value+"§", key.upper())
-        text = text.replace(value+"╩", key.title())
-        text = text.replace(value+"╔", key)
-    return text
-
-def letter_conversion(text, x=False, r=True, ee_only=False, change_S_to_Z=True):
+def change_long_vowels_v_c_z_s_sch_zch(text, change_S_to_Z=True):
     text = " " + text + " "
     # \n, \t
     text = text.replace("\n", " 🤯 ")
     text = text.replace("\t", " 📏 ")
 
-    if x:
-        text = text.replace("X", "Ks")
-        text = text.replace("x", "ks")
-
-    if r:
-        text = text.replace("Ŗ", "R")
-        text = text.replace("ŗ", "r")
-
-    if ee_only:
-        text = change_ee_to_ie(text)
-        # \n, \t
-        text = text.replace(" 🤯 ", "\n")
-        text = text.replace(" 📏 ", "\t")
-        return text[1:-1]
-
     # Ā, Ē, Ī, Ō, Ū, V, C
     text = change_key_val(text, dict.lengthmarks_w_z)
 
-    # Z
-    if change_S_to_Z:
-        for key, value in dict.z_cap.items():
-            text = text.replace(key, value)
-
     # Z, Ž, S, Š
+    text = text.replace("S", "Z")
     text = text.replace("ſ", "z")
-    text = text.replace("ẜ", "s")
     text = text.replace("Ꞩ", "S")
+    text = text.replace("ẜ", "s")
     text = change_key_val(text, dict.s_ž_š)
-
-    # EE
-    # text = change_ee_to_ie(text)
 
     # \n, \t
     text = text.replace(" 🤯 ", "\n")
     text = text.replace(" 📏 ", "\t")
     return text[1:-1]
 
-# Converts old fraktur latvian text to modern latvian text
-# Inpustring: text - text to convert;
-# Boolean: x - if True converts "x" to "ks"; r - if True converts "ŗ" to "r"; ee_only - if True converts only "ee" to "ie" in text; change_S_to_Z - if True converts "S" to "Z"
-def convert(text, x=False, r=True, ee_only=False, change_S_to_Z=True):
+def change_ee_only(text):
+    ee_words = set(re.findall(r"\b\w*ee\w*\b", text, flags=re.IGNORECASE))
+    for w in ee_words:
+        mod_ee_w = change_prefix(w.lower())
+        mod_ee_w = change_ee(mod_ee_w)
+        if w.islower():
+            text = text.replace(w, mod_ee_w)
+        if w.istitle():
+            text = text.replace(w, mod_ee_w.title())
+        if w.isupper():
+            text = text.replace(w, mod_ee_w.upper())
+        else:
+            text = text.replace(w, mod_ee_w)
+    return text
+
+def convert(text, r=True, ee_only=False, change_S_to_Z=True):
+    """ Converts old fraktur latvian text to modern latvian text
+        Inpustring: text - text to convert;
+        Boolean: x - if True converts "x" to "ks"; r - if True converts "ŗ" to "r"; ee_only - if True converts only "ee" to "ie" in text; change_S_to_Z - if True converts "S" to "Z"
+    """
+    if r:
+        text = text.replace("Ŗ", "R").replace("ŗ", "r")
+    if ee_only:
+        return change_ee_only(text)
+        
     # Converts old letters and prefixes in text to those used in modern Latvian
-    text = letter_conversion(text, x, r, ee_only, change_S_to_Z)
+    text = change_long_vowels_v_c_z_s_sch_zch(text, change_S_to_Z)
     # Text modernization – splits text into words, converts them and returns modernized text 
-    text = split_and_edit_words(text, r=False)
+    text = split_and_edit_words(text)
     return text

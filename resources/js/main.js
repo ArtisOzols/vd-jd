@@ -50,11 +50,12 @@ input_btn.addEventListener("change", function(){
   });
   reader.readAsDataURL(this.files[0]);
 });
+
 async function image_to_text(img) {
-  const worker = await Tesseract.createWorker("Frak_LV_280721_500k", {
-    langPath: "https://artisozols.github.io/vd-jd/global",
-    gzip: false
+  const worker = await Tesseract.createWorker("Frak_LV_280721_500k", 1, {
+    langPath: "https://artisozols.github.io/vd-jd/global"
   });
+  
   const { data: { text } } = await worker.recognize(img);
   await worker.terminate();
 
@@ -62,6 +63,11 @@ async function image_to_text(img) {
   output.style.backgroundColor = "white";
   output.style.opacity = "100%";
   output.value = convert_text(text);  
+};
+
+function convert_text(text) {
+  py_convert_text = pyscript.interpreter.globals.get('convert');
+  return py_convert_text(text);
 };
 
 function removeFiles() {
@@ -73,18 +79,11 @@ function removeFiles() {
   output.value = "";
   canvasForHtml.style.display = "none";
   char_buttons.style.display = "flex";
-}
-
-function convert_text(text) {
-  py_convert_text = pyscript.interpreter.globals.get('convert');
-  return py_convert_text(text);
 };
-
 
 function set_output_val() {
   output.value = convert_text(input.value);
 };
-
 input.addEventListener('input', set_output_val)
 set_output_val();
 
@@ -98,4 +97,4 @@ function addCharacter(char) {
   for (let i = 0; i < char_btn.length; i++) {
     char_btn[i].style.backgroundColor = "transparent";
   }
-}
+};
