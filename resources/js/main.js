@@ -1,12 +1,32 @@
 const input_btn = document.getElementById("img_input_btn"); // input that takes image
-const img_btn_div = document.getElementById("img_btn_div"); // button that sets value to input_btn
+const btn_div = document.getElementById("btn_div"); // button that sets value to input_btn
 const input = document.getElementById('input');
 const output = document.getElementById('output');
 const char_buttons = document.getElementById('character_buttons');
 const canvasForHtml = document.getElementById("img_canvas");
 const ctxForHtml = canvasForHtml.getContext('2d');
+const dropdown = document.getElementById("dropdown");
+var convert_ee_r = {"ee": false, "r": true};
 
+// Dropdown optoins
+function unhideDropdown() {
+  dropdown.style.display = (dropdown.style.display === 'none') ? 'block' : 'none';
+};
 
+document.addEventListener('click', function(event) {
+  if (!event.target.matches('.overlay, #dropdown, #dropdown button, #dropdown button span')) {
+    dropdown.style.display = 'none';
+  };
+});
+
+function checkUncheck(id) {
+  var x = document.getElementById("check_"+id);
+  x.innerHTML = (x.innerHTML === "☐ ") ? "☒ " : "☐ ";
+  convert_ee_r[id] = convert_ee_r[id] ? false : true;
+  set_output_val();
+};
+
+// Image input
 input_btn.addEventListener("change", function(){
   document.getElementById("loading").style.display = "block";
   output.style.backgroundColor = "lightgray";
@@ -18,7 +38,7 @@ input_btn.addEventListener("change", function(){
     image.src = reader.result;
     image.onload = function() {
       char_buttons.style.display = "none";
-      img_btn_div.style.display = "none";
+      btn_div.style.display = "none";
       input.style.display = "none";
       
       // Creating canvas to display
@@ -51,28 +71,24 @@ input_btn.addEventListener("change", function(){
   reader.readAsDataURL(this.files[0]);
 });
 
+// Text recognition
 async function image_to_text(img) {
   const worker = await Tesseract.createWorker("Frak_LV_280721_500k", 1, {
     langPath: "https://artisozols.github.io/vd-jd/global"
   });
-  
   const { data: { text } } = await worker.recognize(img);
   await worker.terminate();
 
   document.getElementById("loading").style.display = "none";
   output.style.backgroundColor = "white";
   output.style.opacity = "100%";
-  output.value = convert_text(text);  
+  output.value = convert(text, convert_ee_r["r"], convert_ee_r["ee"]);
 };
 
-function convert_text(text) {
-  py_convert_text = pyscript.interpreter.globals.get('convert');
-  return py_convert_text(text);
-};
-
-function removeFiles() {
+// Clear input/output
+function clearAll() {
   input_btn.value = "";
-  img_btn_div.style.display = "block";
+  btn_div.style.display = "flex";
   input.value = "";
   input.style.display = "block";
   input.focus();
@@ -81,12 +97,14 @@ function removeFiles() {
   char_buttons.style.display = "flex";
 };
 
+// Converts text from input textarea 
 function set_output_val() {
-  output.value = convert_text(input.value);
+  output.value = convert(input.value, convert_ee_r["r"], convert_ee_r["ee"]);
 };
-input.addEventListener('input', set_output_val)
+input.addEventListener('input', set_output_val);
 set_output_val();
 
+// Adds old Latvian Characters
 function addCharacter(char) {
   var curPos = input.selectionStart;
   let x = input.value;

@@ -12,8 +12,7 @@ o_w_dict = {
     "taīs": "tajās",
 
     "neka": "nekā",
-    "alaž": "allaž",
-
+    "tūlin": "tūliņ",
     "tapat": "tāpat",
     "tapēc": "tāpēc",
     "kapēc": "kāpēc",
@@ -26,10 +25,4 @@ o_w_dict = {
     "trepem": "trepēm",
     "reizem": "reizēm",
     "smaididama": "smaidīdama",
-    
-
-    "tūlin": "tūliņ",
-    # ???
-    "zin": "zina",
-    "bij": "bija",
     }
