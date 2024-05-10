@@ -1,7 +1,7 @@
 import string
 import re
 from LatvianStemmer import stem
-from resources.py.lang_resources.vcc_wordlist import st_vcc, nost_vcc, st_adj_adv_with_s, vcc_in_pref, vcc_in_pref_w_st, vcc_in_pref_w_nost
+from resources.py.lang_resources.vcc_wordlist import st_vcc, nost_vcc, v_in_pref_cc_in_w_st, v_in_pref_cc_in_w_nost, vc_in_pref_c_in_w_nost, vc_in_pref_c_in_w_st
 from resources.py.lang_resources import w_prefixs_endings as w_p_e
 from resources.py.lang_resources import letter_conversion as lc
 from resources.py.lang_resources import old_w_dictionary
@@ -25,7 +25,7 @@ pref_s_to_z = {
 # Changes prefixes – "s" to "z" in "is", "us", "ais", "bes", "līds", "lids"; "z" to "s" in prefixes that ends with "s" followed by "t", "d" or "p"; short to long vowel ("lidz" to "līdz"; "pec" to "pēc"; "ja"+vowel (exc. "u") to "jā"+vowel)
 def change_prefix(w):
     # converting prefixes that ends with "z" (but should end with "s") with following letter  "t", "d" or "p" (e.g., "puztumšs"→"pustumšs")
-    if len(w) > 3:
+    if len(w) > 4:
         for p in w_p_e.pref_with_st_sd_sp:
             if w[:len(p)] == p:
                 w = w.replace(p, p[:-2]+"s"+p[-1])
@@ -184,23 +184,24 @@ def change_vcc(w):
         w, pref = remove_prefix(w)
         if pref:
             # When vcc is within pref (e.g., vissasodītākais, vissnoderīgākais)
-            vcc = check_vcc(pref)
-            if vcc and all(not i in pref for i in vcc_in_pref):
-                pref = pref.replace(vcc, vcc[:2])
+            # vcc = check_vcc(pref)
+            # if vcc and all(not i in pref for i in vcc_in_pref):
+            #     pref = pref.replace(vcc, vcc[:2])
 
-            # # When pref ends with vc and w starts with c (e.g., prettiesiski, prettēji)
-            # if pref[-2:-1] in ["a", "e", "i", "o", "u"] and pref[-1:] == w[:1] and not w[:1] in vowels:
-            #     # ???
+            # When pref ends with vc and w starts with c (e.g., prettiesiski, prettēji)
+            if pref[-1:] == w[:1] and not w[:1] in vowels and pref[-2:-1] in ["a", "e", "i", "o", "u"]:
+                if not w in vc_in_pref_c_in_w_nost and not stem(w) in vc_in_pref_c_in_w_st:
+                    pref = pref[:-1]
 
             # When pref ends with v, but w starts with cc (e.g., "sa" and "vvaļa", "pa" and "ccietīgs")
             if w[:1] == w[1:2] and not w[:1] in vowels and pref[-1:] in ["a", "e", "i", "o", "u"]:
-                if not w in vcc_in_pref_w_nost and not stem(w) in vcc_in_pref_w_st: # (e.g., "sa" and "vvaļa")
+                if not w in v_in_pref_cc_in_w_nost and not stem(w) in v_in_pref_cc_in_w_st: # (e.g., "sa" and "vvaļa")
                     w = w[1:]
         while True:
             vcc = check_vcc(w)
             if not vcc or check_vcc_exc(w):
                 return pref + w
-            w = vcc[:2].join(w.split(vcc,1)) # Replaces 1 occurrence starting 
+            w = vcc[:2].join(w.split(vcc,1)) # Replaces 1 occurrence 
     else:
         return w
 
@@ -239,7 +240,7 @@ def change_verb_ending(w):
     # 3rd pers. future (-s) is excluded, because this would change nouns in plural (e.g., "būves" should not be converted to verb "būvēs" since "būves" is also noun in plural)
     verb_end = ["sieties", "jāmies", "jamies", "jāties", "jaties", "simies", "amies", "aties", "ties", "jies", "siet", "sies", "jām", "jam", "jāt", "jat", "jos", "jās", "jas", "sim", "šos", "am", "ju", "ji", "ja", "šu", "si", "is", "t"]
     for end in verb_end:
-        if w[-len(end):] == end: 
+        if w[-len(end):] == end:
             # Infinitive form
             # Change short to long vowel in verb suffix and ending if verb is in all_verbs – list of all verbs without endings "ties"and "t"
             if end in ["ties", "t"]:
@@ -254,12 +255,13 @@ def change_verb_ending(w):
                 break
     # III conj. 1st group (-īt, -īties, -ināt, -ināties)
     # Checks if word is in this category. If it is, word is modified, else returned unmodified
-    verb_end_III_first = ["ījamies", "ājamies", "ījaties", "ājaties", "amies", "aties", "ījam", "ājam", "ījat", "ājat", "ījas", "ājas", "am", "at", "as"]
+    verb_end_III_first = ["ījamies", "ājamies", "ījaties", "ājaties", "amies", "ījam", "ājam", "ījat", "ājat", "ījas", "ājas", "am", "at", "as"]
     for end in verb_end_III_first:
         end_l = len(end)
         # Checks if any of these endings are at the end of the word 
         if w[-end_l:] == end:
             if end == "as":
+                # These words are also nouns
                 if any(i in w for i in ["kļūdas", "šaubas", "izbrīnas"]):
                     return w
             # For those words with endings that contains "j", aditional letter from word is added to ending
@@ -272,7 +274,6 @@ def change_verb_ending(w):
     
             # Checks if any – with and without prefix word can be found in iii_first_g list – list of stemmed III conj. 1st group verbs
             original_mod_w = mod_w
-            # return "ARČA " + mod_w + end
 
             while True:
                 if mod_w in verbs.iii_first_g:
@@ -369,6 +370,18 @@ def split_and_edit_words(text, ee=False):
 
         text = re.sub(rf'\b{re.escape(w)}\b', mod_w, text)
 
+        # Works 2 times faster but with errors
+        # mod_w = conv_fun(w.lower())
+        # if w.lower() in words:
+        #     text = re.sub(rf'\b{re.escape(w.lower())}\b', mod_w, text)
+        #     words.remove(w.lower())
+        # if w.title() in words:
+        #     text = re.sub(rf'\b{re.escape(w.title())}\b', mod_w.title(), text)
+        #     words.remove(w.title())
+        # if w.upper() in words:
+        #     text = re.sub(rf'\b{re.escape(w.upper())}\b', mod_w.upper(), text)
+        #     words.remove(w.upper())
+
     return text
 
 def change_key_val(text, d):
@@ -400,7 +413,6 @@ def edit_text(text):
     text = change_key_val(text, lc.lengthmarks_w_z_ſ)
 
     # S, Ž, Š
-    text = text.replace("Ꞩ", "S")
     text = text.replace("ẜ", "s")
     text = change_key_val(text, lc.s_ž_š)
 

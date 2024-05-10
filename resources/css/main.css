@@ -10,6 +10,9 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+py-config {
+    display: none;
+}
 
 html {
     font-family: 'Noto Sans', sans-serif;
@@ -101,6 +104,7 @@ main {
     border-bottom: 1px solid gray;
     border-right: 1px solid gray;
     border-left: 2px solid black;
+    font-family: 'Noto Sans', sans-serif;
 }
 #dropdown :last-child {
     border-bottom-right-radius: 7px;
@@ -120,6 +124,7 @@ main {
     /* border-bottom-right-radius: 6px;
     border-top-right-radius: 6px; */
     color: white;
+    font-family: 'Noto Sans', sans-serif;
 }
 
 #delete_btn {
@@ -135,7 +140,7 @@ main {
 }
 
 #img_btn:hover {
-    background-color: rgb(116, 126, 122);
+    background-color: rgb(98, 116, 109);
     color: white;
 }
 
@@ -174,6 +179,7 @@ textarea {
     padding: 20px;
     box-sizing: border-box;
     border: none;
+    font-family: 'Noto Sans', sans-serif;
 }
 
 textarea:focus { 
@@ -198,7 +204,6 @@ textarea:focus {
 }
 #character_buttons > button {
     width: 10%;
-    padding: 10px 0px;
     background-color: transparent;
     font-size: 1rem;
     font-weight: 900;
@@ -206,9 +211,10 @@ textarea:focus {
     border: 1px solid black;
     border-top: none;
     border-bottom: none;
+    font-family: 'Noto Sans', sans-serif;
 }
 #character_buttons > button:hover {
-    background-color: rgb(116, 126, 122);
+    background-color: rgb(98, 116, 109);
 }
 
 .br-flex {

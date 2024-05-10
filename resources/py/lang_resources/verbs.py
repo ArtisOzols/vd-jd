@@ -116,7 +116,7 @@ i = {
  'žū'}
 
 # II, III conj. verbs in infinitive form which ends with long vowel before ending (-ties or -t). Ending is removed
-ii_iii_verbs = {
+ii_verbs = {
  'abonē',
  'adaptē',
  'adoptē',
@@ -548,8 +548,9 @@ ii_iii_verbs = {
  'šņorē',
  'žāvā',
  'žāvē',
- 
+}
 #  first group III conj. (-īt, -īties, -ināt, -ināties)
+iii_verbs = {
  'adī',
  'aicinā',
  'aizbīdī',
@@ -1852,6 +1853,8 @@ iii_first_g = {
  'šķirst',
  'šķīdin',
  'šļakst'}
+
+ii_iii_verbs = ii_verbs | iii_verbs
 
 # iii_first_g =  {
 #  'adī',

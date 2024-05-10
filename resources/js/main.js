@@ -26,8 +26,21 @@ function checkUncheck(id) {
   set_output_val();
 };
 
-// Image input
+// Upload image from input button
 input_btn.addEventListener("change", function(){
+  processImage(this.files[0]);
+});
+
+// Upload image from clipboard
+document.onpaste = function(pasteEvent) {
+  var item = pasteEvent.clipboardData.items[0];
+  if (item.type.indexOf("image") === 0){
+    var file = item.getAsFile();
+    processImage(file);
+  }
+}
+
+function processImage(file) {
   document.getElementById("loading").style.display = "block";
   output.style.backgroundColor = "lightgray";
   output.style.opacity = "20%";
@@ -68,8 +81,9 @@ input_btn.addEventListener("change", function(){
       image_to_text(dataURL);
     };
   });
-  reader.readAsDataURL(this.files[0]);
-});
+  reader.readAsDataURL(file);
+}
+
 
 // Text recognition
 async function image_to_text(img) {
